@@ -3,7 +3,7 @@ import { Container } from "reactstrap";
 
 import header2 from "../../assets/img/header2.jpg";
 
-function IndexHeader({user}) {
+function IndexHeader({ user }) {
   let pageHeader = React.createRef();
 
   React.useEffect(() => {
@@ -20,7 +20,6 @@ function IndexHeader({user}) {
     }
   });
 
-
   return (
     <>
       <div className="page-header clear-filter" filter-color="blue">
@@ -32,7 +31,7 @@ function IndexHeader({user}) {
           ref={pageHeader}
         ></div>
         <Container>
-          <div className="content-center brand text-left">
+          <div className="content-center brand text-start">
             <h1>
               Selamat Datang{" "}
               <span className="text-capitalize">{user?.name}</span>!
@@ -42,7 +41,9 @@ function IndexHeader({user}) {
             ) : user?.role === "teacher" ? (
               <h4>Anda Masuk Sebagai Pengajar</h4>
             ) : (
-              <h4 className="text-capitalize">Anda Masuk Sebagai {user?.role}</h4>
+              <h4 className="text-capitalize">
+                Anda Masuk Sebagai {user?.role}
+              </h4>
             )}
           </div>
 

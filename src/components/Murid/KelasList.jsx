@@ -23,8 +23,8 @@ import loaderKelasList from "../loader/loaderKelasList";
 // import { loadAnimation } from "lottie-web";
 // import { defineLordIconElement } from "lord-icon-element";
 import ava from "../../assets/img/muslim.png";
+import classImg from "../../assets/img/class-img.png";
 import books from "../../assets/img/books.png";
-import { withAuthUser } from "../auth/RouteAccess";
 
 // defineLordIconElement(loadAnimation);
 
@@ -67,7 +67,7 @@ const KelasList = ({ user }) => {
             </Col>
             <Col>
               <Dropdown
-                className="float-right"
+                className="float-end"
                 isOpen={dropdownOpen}
                 toggle={toggle}
               >
@@ -101,7 +101,7 @@ const KelasList = ({ user }) => {
           <Row className="d-flex justify-space-between">
             {load === false ? (
               lesson?.length === 0 ? (
-                <div className="container text-left">
+                <div className="container text-end">
                   <p className=" font-weight-bold text-dark">
                     Pengajar Sedang Membuat Kelas Terbaik Untuk Kamu, Tungguin
                     Terus Yaa! <br /> - Al-Qolam
@@ -109,7 +109,7 @@ const KelasList = ({ user }) => {
                   <img
                     width="250rem"
                     alt="..."
-                    className="rounded float-right"
+                    className="rounded float-end"
                     src={books}
                   ></img>
                 </div>
@@ -119,9 +119,14 @@ const KelasList = ({ user }) => {
                     <Col md="6" xl="4" key={lesson?.id}>
                       <Card>
                         <CardBody className="ml-2">
-                          <CardTitle className="pt-0">
+                          <Row>
+                            <Col>
+                              <img src={classImg} alt="" />
+                            </Col>
+                          </Row>
+                          <CardTitle className="pt-3 ">
                             <span
-                              className={` badge float-right mt-2 ${
+                              className={` badge float-end mt-2 ${
                                 lesson?.tingkatan === "mudah"
                                   ? "badge-success"
                                   : lesson?.tingkatan === "menengah"
@@ -131,28 +136,9 @@ const KelasList = ({ user }) => {
                             >
                               {lesson?.tingkatan}
                             </span>
-                            <h3>{lesson?.pelajaran}</h3>
+                            <h3 className="mb-2">{lesson?.pelajaran}</h3>
                           </CardTitle>
-                          <Row>
-                            <Col xs="3">
-                              <img
-                                width="90%"
-                                alt="..."
-                                className="rounded-circle "
-                                src={ava}
-                              ></img>
-                            </Col>
-                            <Col xs="auto">
-                              <div className="pl-0 pr-0 pb-1">
-                                <h6 className="card-title text-left card-trainer-name">
-                                  {lesson?.guru}
-                                </h6>{" "}
-                                <h6 className="card-title text-left card-trainer-tipe text-info">
-                                  Pengajar
-                                </h6>
-                              </div>
-                            </Col>
-                          </Row>
+
                           <Row className="d-flex justify-content-between">
                             <Col xs="auto" className="mt-3">
                               <i className="now-ui-icons files_single-copy-04 "></i>
@@ -173,7 +159,7 @@ const KelasList = ({ user }) => {
                                 to={`detail-kelas/${lesson?.id}`}
                                 onClick={top}
                               >
-                                <Button color="info" className="float-right">
+                                <Button color="info" className="float-end">
                                   Mulai belajar
                                 </Button>
                               </Link>
@@ -226,9 +212,14 @@ const KelasList = ({ user }) => {
                     <Col md="6" xl="4" key={lesson?.id}>
                       <Card>
                         <CardBody className="ml-2">
-                          <CardTitle className="pt-0">
+                          <Row>
+                            <Col>
+                              <img src={classImg} alt="" />
+                            </Col>
+                          </Row>
+                          <CardTitle className="pt-3 ">
                             <span
-                              className={` badge float-right mt-2 ${
+                              className={` badge float-end mt-2 ${
                                 lesson?.tingkatan === "mudah"
                                   ? "badge-success"
                                   : lesson?.tingkatan === "menengah"
@@ -238,28 +229,9 @@ const KelasList = ({ user }) => {
                             >
                               {lesson?.tingkatan}
                             </span>
-                            <h3>{lesson?.pelajaran}</h3>
+                            <h3 className="mb-2">{lesson?.pelajaran}</h3>
                           </CardTitle>
-                          <Row>
-                            <Col xs="3">
-                              <img
-                                width="90%"
-                                alt="..."
-                                className="rounded-circle "
-                                src={ava}
-                              ></img>
-                            </Col>
-                            <Col xs="auto">
-                              <div className="pl-0 pr-0 pb-1">
-                                <h6 className="card-title text-left card-trainer-name">
-                                  {lesson?.guru}
-                                </h6>{" "}
-                                <h6 className="card-title text-left card-trainer-tipe text-info">
-                                  Pengajar
-                                </h6>
-                              </div>
-                            </Col>
-                          </Row>
+
                           <Row className="d-flex justify-content-between">
                             <Col xs="auto" className="mt-3">
                               <i className="now-ui-icons files_single-copy-04 "></i>
@@ -280,7 +252,7 @@ const KelasList = ({ user }) => {
                                 to={`detail-kelas/${lesson?.id}`}
                                 onClick={top}
                               >
-                                <Button color="info" className="float-right">
+                                <Button color="info" className="float-end">
                                   Mulai belajar
                                 </Button>
                               </Link>

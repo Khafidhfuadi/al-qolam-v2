@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import './assets/css/bootstrap.min.css';
+// import './assets/css/bootstrap.min.css';
 import './assets/css/now-ui-kit.min.css';
 import './assets/demo/demo.css';
 // scss

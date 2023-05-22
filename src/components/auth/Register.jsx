@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../utils/constants";
 import ExamplesNavbar from "../Nav/ExampleNavbar";
 import header2 from "../../assets/img/header2.jpg";
@@ -137,7 +137,7 @@ const Register = ({ handleLogin }) => {
         ></div>
         <div className="row mt-5">
           <Container className="mt-5">
-            <Col className="ml-auto mr-auto" md="6" xl="4">
+            <Col className="ms-auto me-auto" md="6" xl="4">
               <Card className="card-login card-plain">
                 <Form className="form" onSubmit={handleSubmit} id="signUpForm">
                   <CardHeader className="text-center">
@@ -163,11 +163,6 @@ const Register = ({ handleLogin }) => {
                       ></Input>
                     </InputGroup>
                     <InputGroup className={"no-border input-md"}>
-                      {/* <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="now-ui-icons users_circle-08"></i>
-                        </InputGroupText>
-                      </InputGroupAddon> */}
                       <Input
                         validations={[required]}
                         placeholder="Email"
@@ -177,11 +172,6 @@ const Register = ({ handleLogin }) => {
                       ></Input>
                     </InputGroup>
                     <InputGroup className={"no-border input-md"}>
-                      {/* <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
-                        </InputGroupText>
-                      </InputGroupAddon> */}
                       <Input
                         validations={[required]}
                         placeholder="Password"
@@ -203,11 +193,6 @@ const Register = ({ handleLogin }) => {
                       </a>
                     </InputGroup>
                     <InputGroup className={"no-border input-md"}>
-                      {/* <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
-                        </InputGroupText>
-                      </InputGroupAddon> */}
                       <Input
                         placeholder="Konfirmasi Password"
                         type={typeInputC === "text" ? "text" : "password"}
@@ -261,16 +246,13 @@ const Register = ({ handleLogin }) => {
                         Daftar
                       </Button>
                     )}
-                    <p>
-                      <a
-                        href="/"
+                    <div>
+                      Sudah Punya Akun? <Link to="/login">Login</Link>
+                      {/* <a
                         className="link aButton"
-                        // onClick={history.goBack()}
-                        onClick={() => (window.location.href = "/")}
-                      >
-                        Sudah Punya Akun? Login
-                      </a>
-                    </p>
+                        onClick={navigate("/login")}
+                      ></a> */}
+                    </div>
                   </CardFooter>
                 </Form>
               </Card>
