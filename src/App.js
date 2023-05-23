@@ -15,9 +15,18 @@ import ProfileDetail from "./components/ProfileDetail";
 import IndexNavbar from "./components/Nav/IndexNavbar";
 
 const App = () => {
-  const savedUser = JSON.parse(localStorage.getItem("user"));
+  // const savedUser = JSON.parse(localStorage.getItem("user"));
   // console.log(savedUser);
-  const [user, setUser] = useState(savedUser === null ? null : savedUser);
+  const [user, setUser] = useState(() => {
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    return savedUser || null;
+  });
+
+  const handleSetUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
 
   const handleLogin = (data) => {
     const { token, user } = data;
@@ -54,7 +63,7 @@ const App = () => {
             <Route
               exact
               path="/detail-profil"
-              element={<ProfileDetail user={user} handleLogout={handleLogout} />}
+              element={<ProfileDetail user={user} handleLogout={handleLogout} handleSetUser={handleSetUser}/>}
             />
           </Route>
           <Route path="*" element={<NotFound />} />

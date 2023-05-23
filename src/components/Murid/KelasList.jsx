@@ -34,11 +34,6 @@ const KelasList = ({ user }) => {
   let [listType, setListType] = React.useState("exist");
   let [valB, setValB] = React.useState("Materi Yang Tersedia");
 
-  // const user = localStorage.getItem("token");
-  // const userJson = JSON.parse(user);
-  // const access_token = userJson?.token?.token;
-  // const userId = userJson?.user?.id;
-
   let chapOnlyFilter = lesson?.filter(function (e) {
     // eslint-disable-next-line
     return e.chapter_count != 0;
@@ -63,7 +58,7 @@ const KelasList = ({ user }) => {
         <Container>
           <Row>
             <Col>
-              <h2>Mulai belajar - ابدا بالتعلم</h2>
+              <h2>Mulai belajar - بَدْءَ الدِرَاسَةُ</h2>
             </Col>
             <Col>
               <Dropdown
@@ -136,7 +131,7 @@ const KelasList = ({ user }) => {
                             >
                               {lesson?.tingkatan}
                             </span>
-                            <h3 className="mb-2">{lesson?.pelajaran}</h3>
+                            <h3 className="mb-2">{lesson?.nama_pelajaran}</h3>
                           </CardTitle>
 
                           <Row className="d-flex justify-content-between">
@@ -168,7 +163,8 @@ const KelasList = ({ user }) => {
                           {lesson?.progress?.length !== 0 ? (
                             lesson?.progress?.map(function (item, i) {
                               let percent =
-                                (item.read_chapter / item.length_chapter) * 100;
+                                (item.read_chapter / lesson?.chapter_count) *
+                                100;
 
                               return (
                                 <>
@@ -181,7 +177,7 @@ const KelasList = ({ user }) => {
                                     </span>
 
                                     <Progress
-                                      max={item.length_chapter}
+                                      max={lesson?.chapter_count}
                                       value={item.read_chapter}
                                     >
                                       <span className="progress-value">
@@ -229,7 +225,7 @@ const KelasList = ({ user }) => {
                             >
                               {lesson?.tingkatan}
                             </span>
-                            <h3 className="mb-2">{lesson?.pelajaran}</h3>
+                            <h3 className="mb-2">{lesson?.nama_pelajaran}</h3>
                           </CardTitle>
 
                           <Row className="d-flex justify-content-between">

@@ -26,7 +26,8 @@ const MyBulletListLoader = () => <BulletList />;
 function KelasDetail({ user, handleLogout }) {
   let { id } = useParams();
   let [detailLesson, setDetailLesson] = React.useState([]);
-  let [progress, setProgress] = React.useState([]);
+  let [progress, setProgress] = React.useState({ data: [], subjectCount: 3 });
+  let [quizCounter, setQuizCounter] = React.useState(1);
   const [load, setLoad] = useState(true);
 
   const navigate = useNavigate();
@@ -76,12 +77,29 @@ function KelasDetail({ user, handleLogout }) {
     setLoad(true);
     fetchDetailPel(setDetailLesson, id);
     fetchProgress(setProgress, id, user.id);
+
     setLoad(false);
+
     // eslint-disable-next-line
   }, []);
 
+  React.useEffect(() => {
+    console.log("progress state", progress);
+  }, [progress]);
+
+  const isSubjectUnlocked = (subjectId) => {
+    // Cek apakah subjek sudah terkunci atau terbuka berdasarkan data kemajuan pengguna
+    if (!progress || progress.data.length === 0) {
+      // Jika userProgress kosong, artinya belum ada kemajuan, maka hanya subjek pertama yang terbuka
+      return subjectId === detailLesson.chapter[0].subject[0].id;
+    }
+
+    // Cek apakah subjek terkunci berdasarkan data kemajuan pengguna
+    return progress?.data?.find((e) => e.subject_id === subjectId);
+  };
+
   let pageHeader = React.createRef();
-  const pelajaran = detailLesson.pelajaran;
+  const pelajaran = detailLesson.nama_pelajaran;
 
   return (
     <div>
@@ -101,15 +119,16 @@ function KelasDetail({ user, handleLogout }) {
                 <div className="media">
                   <div className="media-body text-start ">
                     <h1 className="title">{pelajaran}</h1>
+
                     <div style={{ fontSize: "0.9rem" }}>
                       {detailLesson.deskripsi}
                     </div>
                     <hr />
                     <div>
                       <img src={chapterIcon} width={30} className="me-2" />
-                      {detailLesson?.chapter?.length} Materi
+                      {detailLesson?.subjectCount} Materi
                       <img src={quizIcon} width={30} className="ms-3 me-2" />
-                      {detailLesson?.quiz?.length} Kuis
+                      {detailLesson?.quizCount} Kuis
                       <img
                         src={certifTest}
                         width={30}
@@ -117,13 +136,13 @@ function KelasDetail({ user, handleLogout }) {
                         className="ms-3 me-2"
                       />{" "}
                       Ujian
-                      {detailLesson?.quiz?.length === 0 ? (
+                      {detailLesson?.exam?.length === 0 ? (
                         <> Tidak Tersedia</>
                       ) : (
                         <> Tersedia</>
                       )}{" "}
                       <img src={authorIcon} width={30} className="ms-3 me-2" />
-                      {detailLesson.guru}
+                      {detailLesson.user?.name}
                     </div>
                   </div>
                 </div>
@@ -136,7 +155,7 @@ function KelasDetail({ user, handleLogout }) {
         <Container className="mt-4">
           <BackButton />
 
-          <h4>Materi Yang Tersedia - المواد المتاحة</h4>
+          <h4>Materi Yang Tersedia - اَلْمَوَادَ اَلْمُتَاحَةُ</h4>
           {load === false ? (
             detailLesson?.chapter?.length === 0 ? (
               <div className="container">
@@ -155,83 +174,103 @@ function KelasDetail({ user, handleLogout }) {
               </div>
             ) : (
               <div class="accordion" id="accordionExample">
-                <div class="accordion-item mb-5">
-                  <h2 class="accordion-header" id="headingOne">
-                    <button
-                      class="accordion-button"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseOne"
-                      aria-expanded="true"
-                      aria-controls="collapseOne"
+                {detailLesson?.chapter?.map((item, chapterIndex) => {
+                  return (
+                    <div
+                      class={
+                        chapterIndex === 0
+                          ? "accordion-item mb-5"
+                          : "accordion-item mb-5 border-top"
+                      }
                     >
-                      <h5>
-                        <strong>Bab 1</strong>
-                      </h5>
+                      <h2 class="accordion-header" id={chapterIndex}>
+                        <button
+                          class={
+                            chapterIndex == 0
+                              ? "accordion-button"
+                              : "accordion-button collapsed"
+                          }
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target={`#collapse${chapterIndex}`}
+                          aria-expanded={chapterIndex == 0 ? "true" : "false"}
+                          aria-controls={`collapse${chapterIndex}`}
+                        >
+                          <h5>
+                            <strong>{item.name}</strong>
+                          </h5>
 
-                      <p className="fs-6 fw-normal">
-                        Memperkenalkan sejarah Kotlin, mengapa harus mempelajari
-                        Kotlin, karakteristik Kotlin, dan bagaimana Kotlin
-                        berperan dalam pengembangan aplikasi. Akan dibahas juga
-                        tentang ekosistem Kotlin.
-                      </p>
+                          <p className="fs-6 fw-normal">{item.deskripsi}</p>
 
-                      <div className="badge bg-info text-wrap">3 Materi</div>
-                      <div className="badge bg-info text-wrap">1 Kuis</div>
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseOne"
-                    class="accordion-collapse collapse show"
-                    aria-labelledby="headingOne"
-                    data-bs-parent="#accordionExample"
-                  >
-                    <div class="accordion-body">
-                      {load === false ? (
-                        detailLesson?.chapter?.map((list, index) => {
-                          return (
-                            <div class="card mt-2">
-                              <div class="card-body d-flex justify-content-between align-items-center">
-                                {list?.judul_bab}
-                                {index > progress[0]?.read_chapter ||
-                                (index > 0 && progress.length === 0) ? (
-                                  <Button color="danger" disabled={true}>
-                                    Materi Terkunci
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    onClick={() => checkStart(index)}
-                                    color="info"
-                                  >
-                                    Mulai Belajar
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <MyBulletListLoader />
-                      )}
-                      {load === false ? (
-                        detailLesson?.quiz?.length !== 0 ? (
-                          <div class="card mt-2 ">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                              Kuis Bab 1
-                              <Button color="danger" disabled={true}>
-                                Materi Terkunci
-                              </Button>
-                            </div>
+                          <div className="badge bg-info text-wrap">
+                            {item?.subject?.length} Materi
                           </div>
-                        ) : (
-                          <></>
-                        )
-                      ) : (
-                        <></>
-                      )}
+                          <div className="badge bg-info text-wrap">
+                            {item?.quiz?.length} Kuis
+                          </div>
+                        </button>
+                      </h2>
+                      <div
+                        id={`collapse${chapterIndex}`}
+                        className={
+                          chapterIndex == 0
+                            ? "accordion-collapse collapse show"
+                            : "accordion-collapse collapse"
+                        }
+                        aria-labelledby={chapterIndex}
+                        data-bs-parent="#accordionExample"
+                      >
+                        <div class="accordion-body">
+                          {item?.subject?.map((list, index) => {
+                            return (
+                              <div class="card mt-2">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                  {list?.name}
+                                  {!isSubjectUnlocked(list.id) ? (
+                                    <Button color="danger" disabled={true}>
+                                      Materi Terkunci
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      onClick={() => checkStart(index)}
+                                      color="info"
+                                      disabled={false}
+                                    >
+                                      Mulai Belajar
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {load === false ? (
+                            item.quiz.length === 0 ? (
+                              <div class="card mt-2">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                  Kuis {item.nama_pelajaran}
+                                  <Button color="danger" disabled={true}>
+                                    Terkunci
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div class="card mt-2">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                  Kuis {item.nama_pelajaran}
+                                  <Button color="info" disabled={false}>
+                                    Mulai
+                                  </Button>
+                                </div>
+                              </div>
+                            )
+                          ) : (
+                            <></>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             )
           ) : (

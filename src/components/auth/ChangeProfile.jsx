@@ -3,7 +3,6 @@ import { Button, Row, Col, Label, Input, FormGroup, Form } from "reactstrap";
 export function ChangeProfile(
   handleSubmit,
   setNama,
-  setEmail,
   load,
   userName,
   userEmail
@@ -34,7 +33,6 @@ export function ChangeProfile(
                   defaultValue={userEmail}
                   placeholder="Email"
                   type="email"
-                  onInput={(e) => setEmail(e.target.value)}
                 ></Input>
               </FormGroup>
             </Col>

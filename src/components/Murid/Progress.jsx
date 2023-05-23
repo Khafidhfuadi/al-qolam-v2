@@ -54,11 +54,6 @@ function ProgressBar({ user }) {
                   Kamu Belum Memulai Kelas Apapun, Mulai Sekarang! <br /> -
                   Al-Qolam
                 </p>
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
               </div>
             )
           ) : (

@@ -21,7 +21,7 @@ import { ChangeProfile } from "./auth/ChangeProfile";
 
 // defineLordIconElement(loadAnimation);
 
-function ProfileDetail({ user, handleLogout }) {
+function ProfileDetail({ user, handleLogout, handleSetUser }) {
   const { role, name, id } = user;
   // console.log("user", name);
   // const alert = useAlert();
@@ -29,14 +29,12 @@ function ProfileDetail({ user, handleLogout }) {
   const [typeList, setTypeList] = React.useState("editProfile");
   const [load, setLoad] = useState(false);
   const [nama, setNama] = useState(name);
-  const [nameOnHeader, setNameH] = useState("");
+  const [nameOnHeader, setNameH] = useState();
   const [email, setEmail] = useState(user.email);
   const [confDel, setconfDel] = useState("");
 
   React.useEffect(() => {
     fetchDataUser(setLoad, setNameH, id);
-
-    console.log("NAME", nameOnHeader?.success?.name);
 
     document.body.classList.add("profile-page");
     document.body.classList.add("sidebar-collapse");
@@ -54,25 +52,31 @@ function ProfileDetail({ user, handleLogout }) {
     e.preventDefault();
     setLoad(true);
 
+    console.log("nama", nama);
+    console.log("role", role);
+
     axios({
-      method: "put",
-      url: `${API_URL}user/${id}`,
+      method: "PUT",
+      url: `${API_URL}/user/${id}`,
       data: {
         name: nama,
-        email: email,
         role: role,
       },
     })
       .then(function (response) {
         setLoad(false);
-        let dataUser = response.data;
-        let jsonUser = JSON.stringify(dataUser);
-        // setToken(dataUser);
-        localStorage.setItem("token", jsonUser);
-        // alert.success(<div className="notif">Berhasil mengedit Profil!</div>);
+        // set user data and token to local storage
+        // to json
+        //log message
+        console.log(response.data.message);
+        handleSetUser(response.data.user);
+        const token = JSON.stringify(response.data.token);
+
+        localStorage.setItem("token", token);
       })
       .then(() => {
         fetchDataUser(setLoad, setNameH, id);
+        console.log("berhasil");
       })
       .catch(function (error) {
         setLoad(false);
@@ -132,7 +136,7 @@ function ProfileDetail({ user, handleLogout }) {
     <>
       <IndexNavbar handleLogout={handleLogout} />
       <div className="wrapper">
-        <ProfilePageHeader name={nameOnHeader?.success?.name} roleUser={role} />
+        <ProfilePageHeader name={nameOnHeader} roleUser={role} />
         <div className="section">
           <Container>
             <BackButton />
@@ -178,9 +182,8 @@ function ProfileDetail({ user, handleLogout }) {
                   return ChangeProfile(
                     handleSubmit,
                     setNama,
-                    setEmail,
                     load,
-                    name,
+                    nameOnHeader,
                     user.email
                   );
                 case "changePass":

@@ -1,6 +1,7 @@
 import IndexNavbar from "../Nav/IndexNavbar";
 import NotFound from "../NotFound/notFound";
 import React from "react";
+import TransparentFooter from "../Footers/TransparentFooter";
 
 export const withAuthUser = (Component) => {
   // get role from local storage
@@ -11,6 +12,7 @@ export const withAuthUser = (Component) => {
         <>
           <IndexNavbar {...props} />
           <Component {...props} />
+          <TransparentFooter />
         </>
       );
     } else {

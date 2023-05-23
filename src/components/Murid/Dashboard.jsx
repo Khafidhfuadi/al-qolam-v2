@@ -38,7 +38,6 @@ const MuridDashboard = ({ user }) => {
           <ProgressBar user={user} />
           <KelasList user={user} />
         </div>
-        {/* <TransparentFooter /> */}
       </div>
     </>
   );

@@ -62,10 +62,10 @@ export function fetchDetailPel(setDetailLesson, idLesson) {
 // fetch progress
 export function fetchProgress(setProgress, lesson_id, userId) {
   api
-    .get(`api/progress?user_id=${userId}&lesson_id=${lesson_id}`)
+    .get(`/progress?user_id=${userId}&lesson_id=${lesson_id}`)
     .then((response) => {
-      setProgress(response.data.data);
-      // console.log("progress", response.data.data);
+      setProgress(response.data);
+      console.log("progress", response.data);
     })
     .catch((error) => {
       let message = error;
@@ -92,8 +92,7 @@ export function fetchDataUser(setLoad, setNameH, userId) {
     .get(`${API_URL}/user/${userId}`)
     .then((response) => {
       setLoad(false);
-      setNameH(response.data);
-      console.log(response.data);
+      setNameH(response.data.success.name);
     })
     .catch((error) => {
       let message = error.response;
