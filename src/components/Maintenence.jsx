@@ -7,6 +7,8 @@ import IndexHeader from "./Headers/IndexHeader";
 import header2 from "../assets/img/header2.jpg";
 //alqolam logo
 import logo from "../assets/img/brand-logo.png";
+// preview image
+import preview from "../assets/img/preview.png";
 
 const Maintenence = ({ user }) => {
   let pageHeader = React.createRef();
@@ -60,30 +62,33 @@ const Maintenence = ({ user }) => {
               </h1>
               <h4>Mohon maaf karena kamu belum dapat belajar dengan kami</h4>
               <h5>
-                Website ini masih dalam tahap perbaikan dan pemeliharaan. Doakan
-                yang terbaik ya 🙏
+                Website ini masih dalam tahap peningkatan fitur dan performa.
+                Doakan yang terbaik ya 🙏
               </h5>
-              <p>~ Al-Qolam ~</p>
+              <p>~ Al-Qolam 2.0 ~</p>
             </div>
-
-            {/* <h6 className="category category-absolute">
-            <lord-icon trigger="loop" src="/scroll-down.json"></lord-icon>
-            <br />
-          </h6> */}
           </Container>
         </div>
         <div className="main">
           <div className="section">
             <Container>
-              <blockquote className="blockquote text-center text-info border-0">
-                <p id="arab">
-                  اُطْلُبِ العِلْمَ مِنَ الـمَهْدِ إِلَى اللَّحْدِ
-                </p>
-                <i id="latin">
-                  Tuntutlah ilmu dari sejak di buaian sampai liang lahat.
-                </i>
-                <p id="arti">uthlubil-‘ilma manal-mahdi ilal-lahdi</p>
-              </blockquote>
+              <h3 className="title text-center">
+                Sedikit Cuplikan Al-Qolam 2.0
+              </h3>
+              <div className="row justify-content-center">
+                <div className="col-md-6">
+                  <div className="card">
+                    <div className="card-body">
+                      <img
+                        width="100%"
+                        alt="..."
+                        className="rounded mr-1"
+                        src={preview}
+                      ></img>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Container>
           </div>
           {/* <ProgressBar user={user} /> */}
