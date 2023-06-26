@@ -90,6 +90,31 @@ const Maintenence = ({ user }) => {
                 </div>
               </div>
             </Container>
+            {/* link github and portfolio Website */}
+            <div className="row justify-content-center text-center">
+              <div className="col-md-6">
+                <p>
+                  Github:{" "}
+                  <a
+                    href="https://github.com/Khafidhfuadi/al-qolam-v2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    https://github.com/Khafidhfuadi/al-qolam-v2
+                  </a>
+                </p>
+                <p>
+                  Hubungi Saya:{" "}
+                  <a
+                    href="https://khafidhfuadi.netlify.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    https://khafidhfuadi.netlify.app
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
           {/* <ProgressBar user={user} /> */}
           {/* <KelasList user={user} /> */}
