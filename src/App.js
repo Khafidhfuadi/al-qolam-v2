@@ -13,6 +13,7 @@ import Register from "./components/auth/Register";
 import KelasDetail from "./components/Murid/KelasDetail";
 import ProfileDetail from "./components/ProfileDetail";
 import IndexNavbar from "./components/Nav/IndexNavbar";
+import Maintenence from "./components/Maintenence";
 
 const App = () => {
   // const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -49,6 +50,7 @@ const App = () => {
           <Route element={<IndexNavbar user={user} handleLogout={handleLogout} />} />
           <Route path="/login" element={<Login handleLogin={handleLogin} />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/maintenence" element={<Maintenence />} />
           <Route exact path="/" element={<PrivateRoute user={user} />}>
             <Route
               exact

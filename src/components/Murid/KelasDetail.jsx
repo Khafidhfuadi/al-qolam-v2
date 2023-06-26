@@ -98,6 +98,23 @@ function KelasDetail({ user, handleLogout }) {
     return progress?.data?.find((e) => e.subject_id === subjectId);
   };
 
+  const isChapterUnlocked = (chapterId) => {
+    const unlockedChapters = progress.data.map((item) => item.chapter_id);
+    const chapterIndex = unlockedChapters.indexOf(chapterId);
+
+    if (chapterIndex !== -1) {
+      const unlockedChapter = progress.subjectCountPerChapter.find(
+        (chapter) => chapter.chapter_id === chapterId
+      );
+
+      if (unlockedChapter && unlockedChapter.subjectCount > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   let pageHeader = React.createRef();
   const pelajaran = detailLesson.nama_pelajaran;
 
@@ -244,12 +261,13 @@ function KelasDetail({ user, handleLogout }) {
                             );
                           })}
                           {load === false ? (
-                            item.quiz.length === 0 ? (
+                            item.quiz.length !== 0 &&
+                            isChapterUnlocked(item.id) ? (
                               <div class="card mt-2">
                                 <div class="card-body d-flex justify-content-between align-items-center">
                                   Kuis {item.nama_pelajaran}
-                                  <Button color="danger" disabled={true}>
-                                    Terkunci
+                                  <Button color="info" disabled={false}>
+                                    Mulai
                                   </Button>
                                 </div>
                               </div>
@@ -257,8 +275,8 @@ function KelasDetail({ user, handleLogout }) {
                               <div class="card mt-2">
                                 <div class="card-body d-flex justify-content-between align-items-center">
                                   Kuis {item.nama_pelajaran}
-                                  <Button color="info" disabled={false}>
-                                    Mulai
+                                  <Button color="danger" disabled={true}>
+                                    Terkunci
                                   </Button>
                                 </div>
                               </div>
