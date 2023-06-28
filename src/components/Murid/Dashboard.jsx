@@ -35,7 +35,7 @@ const MuridDashboard = ({ user }) => {
               </blockquote>
             </Container>
           </div>
-          <ProgressBar user={user} />
+          {/* <ProgressBar user={user} /> */}
           <KelasList user={user} />
         </div>
       </div>

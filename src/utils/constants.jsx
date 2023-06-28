@@ -51,7 +51,7 @@ export function fetchDetailPel(setDetailLesson, idLesson) {
     .get(`/lessons/${idLesson}`)
     .then((response) => {
       setDetailLesson(response.data);
-      // console.log("detail lesson", response.data);
+      console.log("detail lesson", response.data);
     })
     .catch((error) => {
       let message = error;
@@ -125,5 +125,19 @@ export function countLesson(setLesson, setLoad, userId) {
       setLoad(false);
       let message = error.response;
       return message;
+    });
+}
+
+// fetch quiz score
+export function fetchQuizScore(setQuizScore, chapterId, userId) {
+  axios
+    .get(`${API_URL}/quiz-score?user_id=${userId}&chapter_id=${chapterId}`)
+    .then((response) => {
+      setQuizScore(response.data);
+      console.log("quiz score", response.data);
+    })
+    .catch((error) => {
+      let message = error;
+      console.log("error quiz score", message);
     });
 }

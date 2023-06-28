@@ -111,7 +111,7 @@ const KelasList = ({ user }) => {
               ) : listType === "exist" ? (
                 chapOnlyFilter.map((lesson, index) => {
                   return (
-                    <Col md="6" xl="4" key={lesson?.id}>
+                    <Col md="5" xl="3" key={lesson?.id}>
                       <Card>
                         <CardBody className="ml-2">
                           <Row>
@@ -160,7 +160,7 @@ const KelasList = ({ user }) => {
                               </Link>
                             </Col>
                           </Row>
-                          {lesson?.progress?.length !== 0 ? (
+                          {/* {lesson?.progress?.length !== 0 ? (
                             lesson?.progress?.map(function (item, i) {
                               let percent =
                                 (item.read_chapter / lesson?.chapter_count) *
@@ -196,7 +196,7 @@ const KelasList = ({ user }) => {
                                 <span className="progress-value">0%</span>
                               </Progress>
                             </div>
-                          )}
+                          )} */}
                         </CardBody>
                       </Card>
                     </Col>

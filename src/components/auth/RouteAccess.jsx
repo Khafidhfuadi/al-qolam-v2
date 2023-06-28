@@ -12,7 +12,7 @@ export const withAuthUser = (Component) => {
         <>
           <IndexNavbar {...props} />
           <Component {...props} />
-          <TransparentFooter />
+          {/* <TransparentFooter /> */}
         </>
       );
     } else {

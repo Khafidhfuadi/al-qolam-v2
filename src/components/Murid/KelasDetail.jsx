@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Button, Container, Col, Row, Card } from "reactstrap";
 import IndexNavbar from "../Nav/IndexNavbar";
-import { API_URL } from "../../utils/constants";
+import { API_URL, fetchQuizScore } from "../../utils/constants";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { BulletList } from "react-content-loader";
 import AvatarWithText from "../loader/loaderAvatarWithText";
-// import TransparentFooter from "components/Footers/TransparentFooter";
 import { withAuthUser } from "../auth/RouteAccess";
 import BackButton from "../../utils/BackComponent";
 
@@ -29,13 +28,16 @@ function KelasDetail({ user, handleLogout }) {
   let [progress, setProgress] = React.useState({ data: [], subjectCount: 3 });
   let [quizCounter, setQuizCounter] = React.useState(1);
   const [load, setLoad] = useState(true);
+  let [subjectUnlocked, setSubjectUnlocked] = useState(0);
+  let [quizScore, setQuizScore] = useState(0);
 
   const navigate = useNavigate();
 
-  async function checkStart(index) {
+  async function checkStart(subjectIndex, chapterIndex) {
     let length = detailLesson?.chapter?.length;
+    console.log("index", subjectIndex);
 
-    if (index === 0 && progress.length === 0) {
+    if (subjectIndex === 0 && progress.length === 0) {
       swal({
         title: "Memulai Kelas",
         text: "Siap Memulai Kelas Ini?",
@@ -56,8 +58,7 @@ function KelasDetail({ user, handleLogout }) {
           })
             .then(function (response) {
               navigate({
-                pathname: `/bab-materi/${id}`,
-                state: { index },
+                pathname: `/bab-materi/${id}/chapter/${chapterIndex}/subject/${subjectIndex}`,
               });
             })
             .catch(function (error) {
@@ -67,21 +68,32 @@ function KelasDetail({ user, handleLogout }) {
       });
     } else {
       navigate({
-        pathname: `/bab-materi/${id}`,
-        state: { index },
+        pathname: `/bab-materi/${id}/chapter/${chapterIndex}/subject/${subjectIndex}`,
       });
     }
   }
+
+  const lockedSubject = {
+    opacity: 0.5,
+  };
 
   React.useEffect(() => {
     setLoad(true);
     fetchDetailPel(setDetailLesson, id);
     fetchProgress(setProgress, id, user.id);
-
     setLoad(false);
 
     // eslint-disable-next-line
   }, []);
+  const isQuizCompleted = (chapterId) => {
+    // Check if the quizScore state is already set
+    if (quizScore) {
+      return quizScore.data?.length === 1;
+    }
+
+    fetchQuizScore(setQuizScore, chapterId, user.id);
+    return false; // Return false as the score is not yet fetched
+  };
 
   React.useEffect(() => {
     console.log("progress state", progress);
@@ -99,29 +111,30 @@ function KelasDetail({ user, handleLogout }) {
   };
 
   const isChapterUnlocked = (chapterId) => {
-    const unlockedChapters = progress.data.map((item) => item.chapter_id);
-    const chapterIndex = unlockedChapters.indexOf(chapterId);
+    // lihat apakah jumlah chapter_id yang sama dengan chapter_id yang ada di progress
+    const chapterCount = progress?.data?.filter(
+      (e) => e.chapter_id === chapterId
+    ).length;
 
-    if (chapterIndex !== -1) {
-      const unlockedChapter = progress.subjectCountPerChapter.find(
-        (chapter) => chapter.chapter_id === chapterId
-      );
+    console.log("chapterCount", chapterCount);
+    console.log("detailLesson.chapter.length", detailLesson.chapter.length);
 
-      if (unlockedChapter && unlockedChapter.subjectCount > 0) {
-        return true;
-      }
-    }
-
-    return false;
+    // jika jumlah chapter_id yang sama dengan chapter_id yang ada di progress sama dengan jumlah chapter_id yang ada di chapter, maka chapter terbuka
+    return chapterCount === detailLesson.chapter.length;
   };
 
   let pageHeader = React.createRef();
   const pelajaran = detailLesson.nama_pelajaran;
 
+  //filter progress data hanya yang chapter_id sama dengan chapter_id yang ada di berikan
+  const progressFilter = (chapterId) => {
+    return progress?.data?.filter((e) => e.chapter_id === chapterId);
+  };
+
   return (
     <div>
       <IndexNavbar user={user} handleLogout={handleLogout} />
-      <div className="wrapper allButFooter text-capitalize">
+      <div className="wrapper  text-capitalize">
         <div className="page-header page-header-small">
           <div
             className="page-header-image"
@@ -190,105 +203,195 @@ function KelasDetail({ user, handleLogout }) {
                 </div>
               </div>
             ) : (
-              <div class="accordion" id="accordionExample">
-                {detailLesson?.chapter?.map((item, chapterIndex) => {
-                  return (
-                    <div
-                      class={
-                        chapterIndex === 0
-                          ? "accordion-item mb-5"
-                          : "accordion-item mb-5 border-top"
-                      }
-                    >
-                      <h2 class="accordion-header" id={chapterIndex}>
-                        <button
-                          class={
-                            chapterIndex == 0
-                              ? "accordion-button"
-                              : "accordion-button collapsed"
-                          }
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target={`#collapse${chapterIndex}`}
-                          aria-expanded={chapterIndex == 0 ? "true" : "false"}
-                          aria-controls={`collapse${chapterIndex}`}
-                        >
-                          <h5>
-                            <strong>{item.name}</strong>
-                          </h5>
-
-                          <p className="fs-6 fw-normal">{item.deskripsi}</p>
-
-                          <div className="badge bg-info text-wrap">
-                            {item?.subject?.length} Materi
-                          </div>
-                          <div className="badge bg-info text-wrap">
-                            {item?.quiz?.length} Kuis
-                          </div>
-                        </button>
-                      </h2>
+              <div>
+                <div className="accordion" id="accordionExample">
+                  {detailLesson?.chapter?.map((item, chapterIndex) => {
+                    return (
                       <div
-                        id={`collapse${chapterIndex}`}
                         className={
-                          chapterIndex == 0
-                            ? "accordion-collapse collapse show"
-                            : "accordion-collapse collapse"
+                          chapterIndex === 0
+                            ? "accordion-item mb-5"
+                            : "accordion-item mb-5 border-top"
                         }
-                        aria-labelledby={chapterIndex}
-                        data-bs-parent="#accordionExample"
+                        id={chapterIndex}
+                        key={chapterIndex}
                       >
-                        <div class="accordion-body">
-                          {item?.subject?.map((list, index) => {
-                            return (
-                              <div class="card mt-2">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                  {list?.name}
-                                  {!isSubjectUnlocked(list.id) ? (
+                        <h2 className="accordion-header" id={chapterIndex}>
+                          <button
+                            className={
+                              chapterIndex == 0
+                                ? "accordion-button"
+                                : "accordion-button collapsed"
+                            }
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target={`#collapse${chapterIndex}`}
+                            aria-expanded={chapterIndex == 0 ? "true" : "false"}
+                            aria-controls={`collapse${chapterIndex}`}
+                          >
+                            {/* nama chapter */}
+                            <div class="row align-items-center">
+                              <div class="col-md-auto">
+                                <img
+                                  alt="..."
+                                  width={42}
+                                  className="rounded"
+                                  src={
+                                    chapterIndex == 0
+                                      ? require("../../assets/img/play-button.png")
+                                      : require("../../assets/img/padlock.png")
+                                  }
+                                ></img>
+                              </div>
+                              <div class="col">
+                                <h5>
+                                  <strong>{item.name}</strong>
+                                </h5>
+                                <img
+                                  alt="..."
+                                  className="rounded float-end"
+                                  src={require("../../assets/img/arrow-down.png")}
+                                ></img>
+                                <p className="fs-6 fw-normal">
+                                  {item.deskripsi}
+                                </p>
+                                <div className="badge bg-info text-wrap">
+                                  {item?.subject?.length} Materi
+                                </div>
+                                <div className="badge bg-info text-wrap">
+                                  {item?.quiz?.length} Kuis
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        </h2>
+                        <div
+                          id={`collapse${chapterIndex}`}
+                          className={
+                            chapterIndex == 0
+                              ? "accordion-collapse collapse show"
+                              : "accordion-collapse collapse"
+                          }
+                          aria-labelledby={chapterIndex}
+                          data-bs-parent="#accordionExample"
+                        >
+                          <div className="accordion-body">
+                            {item?.subject?.map((list, index) => {
+                              return (
+                                <div
+                                  style={
+                                    chapterIndex !== 0 ? lockedSubject : {}
+                                  }
+                                  className="card mt-2"
+                                  key={index + 1}
+                                >
+                                  <div className="card-body d-flex justify-content-between align-items-center">
+                                    {/* nama materi */}
+                                    <div>
+                                      <img
+                                        alt="..."
+                                        width={24}
+                                        className="rounded me-2"
+                                        src={require("../../assets/img/file.png")}
+                                      ></img>
+                                      <span className="fw-bold">
+                                        {list?.name}
+                                      </span>
+                                    </div>
+                                    {isSubjectUnlocked(list?.id) ||
+                                    isSubjectUnlocked(
+                                      item.subject[index - 1]?.id
+                                    ) ||
+                                    isQuizCompleted(item?.id) ? (
+                                      <Button
+                                        onClick={() =>
+                                          checkStart(index, chapterIndex)
+                                        }
+                                        color="info"
+                                        disabled={false}
+                                      >
+                                        Mulai Belajar
+                                      </Button>
+                                    ) : (
+                                      <Button color="danger" disabled={true}>
+                                        Materi Terkunci
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            {load === false ? (
+                              item.quiz.length !== 0 &&
+                              progressFilter(item.id).length ===
+                                item.subject.length ? (
+                                <div className="card mt-2" id={item.id}>
+                                  <div className="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                      <img
+                                        src={quizIcon}
+                                        width={24}
+                                        className="rounded me-2"
+                                      />
+                                      <span className="fw-bold">
+                                        Kuis {item.name}
+                                      </span>
+                                    </div>
+
+                                    <Button color="info" disabled={false}>
+                                      Mulai
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : item.quiz.length === 0 ? (
+                                <></>
+                              ) : (
+                                <div className="card mt-2" id={item.id}>
+                                  <div className="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                      <img
+                                        src={quizIcon}
+                                        width={24}
+                                        className="rounded me-2"
+                                      />
+                                      <span className="fw-bold">
+                                        Kuis {item.name}
+                                      </span>
+                                    </div>
                                     <Button color="danger" disabled={true}>
-                                      Materi Terkunci
+                                      Terkunci
                                     </Button>
-                                  ) : (
-                                    <Button
-                                      onClick={() => checkStart(index)}
-                                      color="info"
-                                      disabled={false}
-                                    >
-                                      Mulai Belajar
-                                    </Button>
-                                  )}
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
-                          {load === false ? (
-                            item.quiz.length !== 0 &&
-                            isChapterUnlocked(item.id) ? (
-                              <div class="card mt-2">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                  Kuis {item.nama_pelajaran}
-                                  <Button color="info" disabled={false}>
-                                    Mulai
-                                  </Button>
-                                </div>
-                              </div>
+                              )
                             ) : (
-                              <div class="card mt-2">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                  Kuis {item.nama_pelajaran}
-                                  <Button color="danger" disabled={true}>
-                                    Terkunci
-                                  </Button>
-                                </div>
-                              </div>
-                            )
-                          ) : (
-                            <></>
-                          )}
+                              <></>
+                            )}
+                          </div>
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+                <div style={lockedSubject} className="card mt-2 mb-5">
+                  <div className="card-body d-flex justify-content-between align-items-center">
+                    {/* nama materi */}
+                    <div>
+                      <img
+                        alt="..."
+                        width={24}
+                        className="rounded me-2"
+                        src={certifTest}
+                      ></img>
+                      <span className="fw-bold">
+                        Ujian {detailLesson?.nama_pelajaran}
+                      </span>
                     </div>
-                  );
-                })}
+                    <Button color="danger" disabled={true}>
+                      Ujian Terkunci
+                    </Button>
+                  </div>
+                </div>
               </div>
             )
           ) : (
@@ -296,7 +399,6 @@ function KelasDetail({ user, handleLogout }) {
           )}
         </Container>
       </div>
-      {/* <TransparentFooter /> */}
     </div>
   );
 }

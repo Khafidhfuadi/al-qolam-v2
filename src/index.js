@@ -4,6 +4,7 @@ import './index.css';
 // import './assets/css/bootstrap.min.css';
 import './assets/css/now-ui-kit.min.css';
 import './assets/demo/demo.css';
+import './assets/css/now-ui-dashboard.css';
 // scss
 import App from './App';
 

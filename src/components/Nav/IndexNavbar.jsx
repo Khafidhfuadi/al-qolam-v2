@@ -53,7 +53,7 @@ function IndexNavbar(props) {
       <Navbar className={"fixed-top " + navbarColor} expand="lg" color="info">
         <Container>
           <div className="navbar-translate">
-            <NavbarBrand to="/" tag={Link}>
+            <NavbarBrand to="/" tag={Link} className="float-start">
               <img
                 width="50rem"
                 alt="..."
@@ -62,7 +62,6 @@ function IndexNavbar(props) {
               ></img>
               Al-Qolam
             </NavbarBrand>
-
             <button
               className="navbar-toggler navbar-toggler"
               onClick={() => {
@@ -77,20 +76,21 @@ function IndexNavbar(props) {
               <span className="navbar-toggler-bar bottom-bar"></span>
             </button>
           </div>
+
           <Collapse
             className="justify-content-end"
             isOpen={collapseOpen}
             navbar
           >
             <Nav navbar>
-              {props.user?.role === "murid" ? (
+              {/* {props.user?.role === "murid" ? (
                 <NavItem>
                   <NavLink to="/bab" tag={Link}>
                     <i className="now-ui-icons files_single-copy-04"></i>
                     <span>Bab Materi</span>
                   </NavLink>
                 </NavItem>
-              ) : null}
+              ) : null} */}
 
               <UncontrolledDropdown nav>
                 <DropdownToggle

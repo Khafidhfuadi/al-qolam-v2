@@ -14,6 +14,7 @@ import KelasDetail from "./components/Murid/KelasDetail";
 import ProfileDetail from "./components/ProfileDetail";
 import IndexNavbar from "./components/Nav/IndexNavbar";
 import Maintenence from "./components/Maintenence";
+import MateriPage from "./components/MateriPage";
 
 const App = () => {
   // const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -62,6 +63,8 @@ const App = () => {
               path="/detail-kelas/:id"
               element={<KelasDetail user={user} handleLogout={handleLogout} />}
             />
+            <Route exact path="/bab-materi/:id/chapter/:chapindex/subject/:subindex" element={<MateriPage user={user} handleLogout={handleLogout} />} />
+
             <Route
               exact
               path="/detail-profil"
