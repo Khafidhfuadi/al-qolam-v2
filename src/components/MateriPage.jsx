@@ -1,16 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "reactstrap";
-import axios from "axios";
-import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import loader from "../components/loader/loaderMateri";
 import parse from "html-react-parser";
 
 import swal from "sweetalert";
-import NavbarBrand from "reactstrap/lib/NavbarBrand";
 import { fetchDetailPel, fetchProgress } from "../utils/constants";
-import logo from "../assets/img/brand-logo.png";
-import BackButton from "../utils/BackComponent";
-import { API_URL } from "../utils/constants";
 
 function MateriPage({ user, handleLogout, ...props }) {
   const { role, name } = user;
@@ -24,8 +19,8 @@ function MateriPage({ user, handleLogout, ...props }) {
 
   let [detailLesson, setDetailLesson] = React.useState([]);
   let [progress, setProgress] = React.useState([]);
-  const [currentChapter, setCurrentCha] = useState(chapindex);
-  const [currentSubject, setCurrentSub] = useState(subindex);
+  let [currentChapter, setCurrentCha] = useState(chapindex);
+  let [currentSubject, setCurrentSub] = useState(subindex);
 
   // const user = localStorage.getItem("token");
   // const userJson = JSON.parse(user);
@@ -34,6 +29,8 @@ function MateriPage({ user, handleLogout, ...props }) {
   // const id = userJson?.user?.id;
 
   React.useEffect(() => {
+    window.scrollTo(0, 0);
+
     console.log("state", index);
     console.log("props", props);
     fetchDetailPel(setDetailLesson, id);
@@ -45,46 +42,55 @@ function MateriPage({ user, handleLogout, ...props }) {
     // eslint-disable-next-line
   }, [id]);
 
-  const goNextChap = () => {
-    // console.log(filter);
-    if (role === "user") {
-      let update = progress[0].read_chapter + 1;
-      let length = detailLesson?.chapter?.length;
+  const goBack = () => {
+    navigate(-1);
+  };
 
-      if (update <= length) {
-        axios({
-          method: "put",
-          url: `${API_URL}progress/${progress[0].id_progress}`,
-          data: {
-            user_id: userId,
-            lesson_id: userId,
-            read_chapter: update,
-            length_chapter: length,
-          },
-          headers: {
-            ContentType: "multipart/form-data",
-            Accept: "application/json",
-          },
-        })
-          .then(function () {
-            fetchProgress(setProgress, id, userId);
-          })
-          .catch(function (error) {
-            console.log("bb", error.response);
-          });
-      }
+  // const goNextChap = () => {
+  //   // console.log(filter);
+  //   if (role === "user") {
+  //     let update = progress[0].read_chapter + 1;
+  //     let length = detailLesson?.chapter?.length;
 
-      const nextQuestion = currentChapter + 1;
-      setCurrentCha(nextQuestion);
-      window.scrollTo(0, 0);
+  //     if (update <= length) {
+  //       axios({
+  //         method: "put",
+  //         url: `${API_URL}progress/${progress[0].id_progress}`,
+  //         data: {
+  //           user_id: userId,
+  //           lesson_id: userId,
+  //           read_chapter: update,
+  //           length_chapter: length,
+  //         },
+  //         headers: {
+  //           ContentType: "multipart/form-data",
+  //           Accept: "application/json",
+  //         },
+  //       })
+  //         .then(function () {
+  //           fetchProgress(setProgress, id, userId);
+  //         })
+  //         .catch(function (error) {
+  //           console.log("bb", error.response);
+  //         });
+  //     }
 
-      // console.log("length", detailLesson?.chapter?.length);
-      // console.log("update", update);
-    } else {
-      const nextQuestion = currentChapter + 1;
-      setCurrentCha(nextQuestion);
-      window.scrollTo(0, 0);
-    }
+  //     const nextQuestion = currentChapter + 1;
+  //     setCurrentCha(nextQuestion);
+  //     window.scrollTo(0, 0);
+
+  //     // console.log("length", detailLesson?.chapter?.length);
+  //     // console.log("update", update);
+  //   } else {
+  //     const nextQuestion = currentChapter + 1;
+  //     setCurrentCha(nextQuestion);
+  //     window.scrollTo(0, 0);
+  //   }
+  // };
+
+  const nextChap = () => {
+    setCurrentSub(++currentSubject);
+    window.scrollTo(0, 0);
   };
 
   const previousChap = () => {
@@ -104,7 +110,7 @@ function MateriPage({ user, handleLogout, ...props }) {
     }).then((response) => {
       if (response) {
         navigate({
-          pathname: `/quiz/${id}`,
+          pathname: `/quiz/${detailLesson.chapter[currentChapter].id}`,
         });
       }
     });
@@ -113,59 +119,104 @@ function MateriPage({ user, handleLogout, ...props }) {
   return (
     <>
       {detailLesson?.chapter ? (
-        <div className="bungkus">
-          <div className="konten">
-            <div className="konten-bungkus">
-              <h1 className="text-capitalize">
-                {detailLesson?.chapter[currentChapter]?.name} |{" "}
-                {parse(
-                  detailLesson?.chapter[currentChapter]?.subject[currentSubject]
-                    ?.name
-                )}
-              </h1>
-              <div className="line "></div>
-              <b className="text-konten font-weight-normal">
-                {parse(
-                  detailLesson?.chapter[currentChapter]?.subject[currentSubject]
-                    ?.subject_content
-                )}
-              </b>
-              <div className="line "></div>
-              <div>
-                <BackButton />
-
-                {currentChapter === 0 ? (
-                  <></>
-                ) : (
-                  <Button
-                    color="primary"
-                    onClick={previousChap}
-                    className={currentSubject == 0 ? "disabled" : ""}
-                  >
-                    <i className="now-ui-icons arrows-1_minimal-left"></i>{" "}
-                    Materi Sebelumnya
-                  </Button>
-                )}
-
-                {currentChapter === detailLesson?.chapter?.length - 1 ? (
-                  detailLesson?.quiz?.length === 0 ? (
-                    <Button color="danger" disabled className="not-allowed">
-                      Ujian Belum Tersedia{" "}
-                      <i className="now-ui-icons arrows-1_minimal-right"></i>
-                    </Button>
-                  ) : (
-                    <Button color="info" onClick={startExam}>
-                      Mulai Ujian{" "}
-                      <i className="now-ui-icons arrows-1_minimal-right"></i>
-                    </Button>
-                  )
-                ) : (
-                  <Button color="info" onClick={goNextChap}>
-                    Lanjut Materi{" "}
+        <div>
+          <section
+            style={{
+              position: "fixed",
+              top: 0,
+              width: "100%",
+              backgroundColor: "#fff",
+            }}
+            className="p-3"
+          >
+            <div className="row justify-content-between">
+              <div className="col d-flex align-items-center">
+                {/* fa times */}
+                <a className="fw-bold text-secondary" onClick={goBack} href="#">
+                  <i className="fa fa-times"></i>{" "}
+                  {detailLesson?.chapter[currentChapter]?.name} |{" "}
+                  {parse(
+                    detailLesson?.chapter[currentChapter]?.subject[
+                      currentSubject
+                    ]?.name
+                  )}
+                </a>
+              </div>
+              <div className="col">
+                {/* logo icon */}
+                <img
+                  width={64}
+                  src={require("../assets/img/brand-logo.png")}
+                  alt=""
+                  className="float-end"
+                />
+              </div>
+            </div>
+          </section>
+          <div className="container mt-5">
+            <div id="content" className="container">
+              <div className="row ">
+                <h2 className="fw-bold">
+                  {parse(
+                    detailLesson?.chapter[currentChapter]?.subject[
+                      currentSubject
+                    ]?.name
+                  )}
+                </h2>
+                <span>
+                  {parse(
+                    detailLesson?.chapter[currentChapter]?.subject[
+                      currentSubject
+                    ]?.subject_content
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              position: "fixed",
+              bottom: 0,
+              width: "100%",
+              borderTop: "2px solid #e5e5e5",
+              backgroundColor: "#fff",
+            }}
+          >
+            <div
+              className="container p-5 d-flex justify-content-end"
+              id="buttons"
+            >
+              {currentSubject == 0 ? (
+                <></>
+              ) : (
+                <Button
+                  color="primary"
+                  onClick={previousChap}
+                  className={currentSubject == 0 ? "disabled me-2" : "me-2"}
+                >
+                  <i className="now-ui-icons arrows-1_minimal-left"></i> Materi
+                  Sebelumnya
+                </Button>
+              )}
+              {currentSubject ===
+              detailLesson?.chapter[currentChapter]?.subject?.length - 1 ? (
+                detailLesson?.quiz?.length === 0 ? (
+                  <Button color="danger" disabled className="not-allowed">
+                    Ujian Belum Tersedia{" "}
                     <i className="now-ui-icons arrows-1_minimal-right"></i>
                   </Button>
-                )}
-              </div>
+                ) : (
+                  <Button color="warning" onClick={startExam}>
+                    Mulai Ujian{" "}
+                    <i className="now-ui-icons arrows-1_minimal-right"></i>
+                  </Button>
+                )
+              ) : (
+                <Button onClick={nextChap} color="info">
+                  Lanjut Materi{" "}
+                  <i className="now-ui-icons arrows-1_minimal-right"></i>
+                </Button>
+              )}
             </div>
           </div>
         </div>

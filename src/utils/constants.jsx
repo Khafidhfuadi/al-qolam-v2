@@ -104,7 +104,7 @@ export function fetchDataCertifList(setCertifList, setLoad, userId) {
   axios
     .get(`${API_URL}/certificate?user_id=${userId}`)
     .then((response) => {
-      setCertifList(response.data.data);
+      setCertifList(response.data);
       setLoad(false);
       console.log("certif", response.data);
     })
@@ -139,5 +139,101 @@ export function fetchQuizScore(setQuizScore, chapterId, userId) {
     .catch((error) => {
       let message = error;
       console.log("error quiz score", message);
+    });
+}
+
+// fetch data quiz
+
+export function fetchDataQuiz(
+  setQuestions,
+  secondsToHms,
+  setRandomArr,
+  id,
+  setLoad,
+  access_token
+) {
+  axios
+    .get(`${API_URL}/quiz?cari=${id}`, {})
+    .then((response) => {
+      setLoad(false);
+      setQuestions(response.data.data.sort(() => Math.random() - 0.5));
+      secondsToHms(response.data.data.length * 60);
+      setRandomArr(
+        JSON.parse(response.data.data[0].answer_options).list.sort(
+          () => Math.random() - 0.5
+        )
+      );
+    })
+    .catch((response) => {
+      console.log("errorQ", response);
+    });
+}
+
+export function fetchDataSingleCertif(
+  setCertif,
+  setCreatedAt,
+  setPredikat,
+  setLoad,
+  lesson_id,
+  userId,
+  access_token
+) {
+  axios
+    .get(`${API_URL}/certificates?lesson_id=${lesson_id}&user_id=${userId}`, {})
+    .then((response) => {
+      setCertif(response.data.data);
+      setCreatedAt(response.data.created);
+      setPredikat(response.data.predikat);
+      console.log("certif", response.data);
+      setLoad(false);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+export function createUserCertif(lessonId, userId, nilaiUjian) {
+  axios({
+    method: "post",
+    url: `${API_URL}/certificates`,
+    data: {
+      lesson_id: lessonId,
+      user_id: userId,
+      nilai_ujian: nilaiUjian,
+    },
+    headers: {
+      ContentType: "multipart/form-data",
+      Accept: "application/json",
+    },
+  })
+    .then(function (response) {
+      //handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error.response);
+    });
+}
+
+export function updateUserCertif(lessonId, userId, nilaiUjian, idCertif) {
+  axios({
+    method: "put",
+    url: `${API_URL}/certificates/${idCertif}`,
+    data: {
+      lesson_id: lessonId,
+      user_id: userId,
+      nilai_ujian: nilaiUjian,
+    },
+    headers: {
+      ContentType: "multipart/form-data",
+      Accept: "application/json",
+    },
+  })
+    .then(function (response) {
+      //handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error.response);
     });
 }

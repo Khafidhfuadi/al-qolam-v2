@@ -7,7 +7,11 @@ export const withAuthUser = (Component) => {
   // get role from local storage
 
   const AuthRoute = (props) => {
-    if (props.user.role === "murid" || props.user.role === "admin") {
+    if (
+      props.user.role === "murid" ||
+      props.user.role === "admin" ||
+      props.user.role === "guru"
+    ) {
       return (
         <>
           <IndexNavbar {...props} />
@@ -23,10 +27,18 @@ export const withAuthUser = (Component) => {
   return AuthRoute;
 };
 
-export const withAuthTeacher = (Component, role) => {
-  const AuthRoute = () => {
-    if (role === "teacher" || role === "admin") {
-      return <Component />;
+export const withAuthTeacher = (Component) => {
+  // get role from local storage
+
+  const AuthRoute = (props) => {
+    if (props.user.role === "guru" || props.user.role === "admin") {
+      return (
+        <>
+          <IndexNavbar {...props} />
+          <Component {...props} />
+          {/* <TransparentFooter /> */}
+        </>
+      );
     } else {
       return <NotFound />;
     }
@@ -34,3 +46,15 @@ export const withAuthTeacher = (Component, role) => {
 
   return AuthRoute;
 };
+
+// export const withAuthTeacher = (Component, role) => {
+//   const AuthRoute = () => {
+//     if (role === "guru" || role === "admin") {
+//       return <Component />;
+//     } else {
+//       return <NotFound />;
+//     }
+//   };
+
+//   return AuthRoute;
+// };

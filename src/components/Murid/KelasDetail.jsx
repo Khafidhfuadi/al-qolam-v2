@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Container, Col, Row, Card } from "reactstrap";
 import IndexNavbar from "../Nav/IndexNavbar";
 import { API_URL, fetchQuizScore } from "../../utils/constants";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { BulletList } from "react-content-loader";
 import AvatarWithText from "../loader/loaderAvatarWithText";
@@ -184,7 +184,15 @@ function KelasDetail({ user, handleLogout }) {
         </div>
         <Container className="mt-4">
           <BackButton />
-
+          {user.role === "guru" ? (
+            <Link className="ml-2" to={`/create-chapter`}>
+              <Button color="success">
+                <i className="now-ui-icons ui-1_simple-add"></i> Buat Materi
+              </Button>
+            </Link>
+          ) : (
+            <></>
+          )}
           <h4>Materi Yang Tersedia - اَلْمَوَادَ اَلْمُتَاحَةُ</h4>
           {load === false ? (
             detailLesson?.chapter?.length === 0 ? (
@@ -213,10 +221,9 @@ function KelasDetail({ user, handleLogout }) {
                             ? "accordion-item mb-5"
                             : "accordion-item mb-5 border-top"
                         }
-                        id={chapterIndex}
                         key={chapterIndex}
                       >
-                        <h2 className="accordion-header" id={chapterIndex}>
+                        <h2 className="accordion-header">
                           <button
                             className={
                               chapterIndex == 0
@@ -339,12 +346,33 @@ function KelasDetail({ user, handleLogout }) {
                                     </div>
 
                                     <Button color="info" disabled={false}>
-                                      Mulai
+                                      Mulai Kuis
                                     </Button>
                                   </div>
                                 </div>
                               ) : item.quiz.length === 0 ? (
-                                <></>
+                                <div className="card mt-2" id={item.id}>
+                                  <div className="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                      <img
+                                        src={quizIcon}
+                                        width={24}
+                                        className="rounded me-2"
+                                      />
+                                      <span className="text-warning">
+                                        *Kuis belum dibuat pada materi{" "}
+                                        <b>{item.name}</b>
+                                      </span>
+                                    </div>
+                                    {detailLesson?.user_id === user.id ? (
+                                      <Button color="info">
+                                        Buat Sekarang!
+                                      </Button>
+                                    ) : (
+                                      <></>
+                                    )}
+                                  </div>
+                                </div>
                               ) : (
                                 <div className="card mt-2" id={item.id}>
                                   <div className="card-body d-flex justify-content-between align-items-center">
@@ -367,6 +395,12 @@ function KelasDetail({ user, handleLogout }) {
                             ) : (
                               <></>
                             )}
+                            <Link className="ml-2" to={`/create-chapter`}>
+                              <Button color="success">
+                                <i className="now-ui-icons ui-1_simple-add"></i>{" "}
+                                Buat Materi {item.name}
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       </div>

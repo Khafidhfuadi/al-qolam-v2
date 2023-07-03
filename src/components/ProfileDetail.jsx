@@ -23,7 +23,7 @@ import { ChangeProfile } from "./auth/ChangeProfile";
 
 function ProfileDetail({ user, handleLogout, handleSetUser }) {
   const { role, name, id } = user;
-  // console.log("user", name);
+  console.log("user", role);
   // const alert = useAlert();
 
   const [typeList, setTypeList] = React.useState("editProfile");
@@ -192,10 +192,10 @@ function ProfileDetail({ user, handleLogout, handleSetUser }) {
             })()}
             <hr />
           </Container>
-          {role === "user" ? (
+          {role === "murid" ? (
             <>
-              <ProgressBar />
-              <CertifList />
+              {/* <ProgressBar /> */}
+              <CertifList user={user} />
             </>
           ) : (
             <span></span>

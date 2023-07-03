@@ -34,3 +34,34 @@ code {
 .accordion-button {
   display: block;
 }
+
+a {
+  text-decoration: none;
+}
+
+.container#content,
+.container#buttons {
+  max-width: 50%;
+}
+
+.container#content {
+  margin-top: 120px;
+  margin-bottom: 420px;
+}
+
+.react-bootstrap-table table {
+  table-layout: auto;
+  overflow: scroll;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .container#content,
+  .container#buttons {
+    max-width: 100%;
+  }
+  .container#content {
+    margin-top: 120px;
+    margin-bottom: 420px;
+  }
+}

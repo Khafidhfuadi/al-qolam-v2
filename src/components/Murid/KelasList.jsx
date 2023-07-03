@@ -52,6 +52,10 @@ const KelasList = ({ user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
 
+  const noChapter = {
+    opacity: 0.5,
+  };
+
   return (
     <div>
       <div className="section text-capitalize">
@@ -205,7 +209,7 @@ const KelasList = ({ user }) => {
               ) : (
                 lesson?.map((lesson, index) => {
                   return (
-                    <Col md="6" xl="4" key={lesson?.id}>
+                    <Col md="5" xl="3" key={lesson?.id}>
                       <Card>
                         <CardBody className="ml-2">
                           <Row>
@@ -235,9 +239,7 @@ const KelasList = ({ user }) => {
                                 {" "}
                                 :{" "}
                                 {lesson?.chapter_count === 0 ? (
-                                  <span className="text-danger">
-                                    Tidak Ada Materi
-                                  </span>
+                                  <span className="text-danger">0 Materi</span>
                                 ) : (
                                   lesson?.chapter_count + " Materi"
                                 )}{" "}
@@ -254,7 +256,7 @@ const KelasList = ({ user }) => {
                               </Link>
                             </Col>
                           </Row>
-                          {lesson?.progress?.length !== 0 ? (
+                          {/* {lesson?.progress?.length !== 0 ? (
                             lesson?.progress?.map(function (item, i) {
                               let percent =
                                 (item.read_chapter / item.length_chapter) * 100;
@@ -289,7 +291,7 @@ const KelasList = ({ user }) => {
                                 <span className="progress-value">0%</span>
                               </Progress>
                             </div>
-                          )}
+                          )} */}
                         </CardBody>
                       </Card>
                     </Col>

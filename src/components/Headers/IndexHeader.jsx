@@ -36,9 +36,9 @@ function IndexHeader({ user }) {
               Selamat Datang{" "}
               <span className="text-capitalize">{user?.name}</span>!
             </h1>
-            {user?.role === "user" ? (
+            {user?.role === "murid" ? (
               <h2>كيف حالك؟</h2>
-            ) : user?.role === "teacher" ? (
+            ) : user?.role === "guru" ? (
               <h4>Anda Masuk Sebagai Pengajar</h4>
             ) : (
               <h4 className="text-capitalize">
