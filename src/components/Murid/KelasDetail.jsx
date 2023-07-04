@@ -184,10 +184,10 @@ function KelasDetail({ user, handleLogout }) {
         </div>
         <Container className="mt-4">
           <BackButton />
-          {user.role === "guru" ? (
+          {user.role === "guru" && user.id === detailLesson?.user_id ? (
             <Link className="ml-2" to={`/create-chapter`}>
               <Button color="success">
-                <i className="now-ui-icons ui-1_simple-add"></i> Buat Materi
+                <i className="now-ui-icons ui-1_simple-add"></i> Buat Bab Baru
               </Button>
             </Link>
           ) : (
@@ -268,6 +268,14 @@ function KelasDetail({ user, handleLogout }) {
                                 <div className="badge bg-info text-wrap">
                                   {item?.quiz?.length} Kuis
                                 </div>
+                                {user.id === detailLesson?.user_id ? (
+                                  <div className="float-end">
+                                    <Button color="success">Edit Bab</Button>
+                                    <Button color="secondary">Hapus Bab</Button>
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
                               </div>
                             </div>
                           </button>
@@ -287,7 +295,9 @@ function KelasDetail({ user, handleLogout }) {
                               return (
                                 <div
                                   style={
-                                    chapterIndex !== 0 ? lockedSubject : {}
+                                    chapterIndex !== 0 && user.role === "murid"
+                                      ? lockedSubject
+                                      : {}
                                   }
                                   className="card mt-2"
                                   key={index + 1}
@@ -305,127 +315,241 @@ function KelasDetail({ user, handleLogout }) {
                                         {list?.name}
                                       </span>
                                     </div>
-                                    {isSubjectUnlocked(list?.id) ||
-                                    isSubjectUnlocked(
-                                      item.subject[index - 1]?.id
-                                    ) ||
-                                    isQuizCompleted(item?.id) ? (
-                                      <Button
-                                        onClick={() =>
-                                          checkStart(index, chapterIndex)
-                                        }
-                                        color="info"
-                                        disabled={false}
-                                      >
-                                        Mulai Belajar
-                                      </Button>
+
+                                    {user.role === "guru" ? (
+                                      <div>
+                                        <Button color="info">Lihat</Button>
+                                        {user.id === detailLesson?.user_id ? (
+                                          <>
+                                            <Button color="success">
+                                              Edit
+                                            </Button>
+                                            <Button color="secondary">
+                                              Hapus
+                                            </Button>
+                                          </>
+                                        ) : (
+                                          <></>
+                                        )}
+                                      </div>
                                     ) : (
-                                      <Button color="danger" disabled={true}>
-                                        Materi Terkunci
-                                      </Button>
+                                      <>
+                                        {isSubjectUnlocked(list?.id) ||
+                                        isSubjectUnlocked(
+                                          item.subject[index - 1]?.id
+                                        ) ||
+                                        isQuizCompleted(item?.id) ? (
+                                          <Button
+                                            onClick={() =>
+                                              checkStart(index, chapterIndex)
+                                            }
+                                            color="info"
+                                            disabled={false}
+                                          >
+                                            Mulai Belajar
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            color="danger"
+                                            disabled={true}
+                                          >
+                                            Materi Terkunci
+                                          </Button>
+                                        )}
+                                      </>
                                     )}
                                   </div>
                                 </div>
                               );
                             })}
-                            {load === false ? (
-                              item.quiz.length !== 0 &&
-                              progressFilter(item.id).length ===
-                                item.subject.length ? (
-                                <div className="card mt-2" id={item.id}>
-                                  <div className="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                      <img
-                                        src={quizIcon}
-                                        width={24}
-                                        className="rounded me-2"
-                                      />
-                                      <span className="fw-bold">
-                                        Kuis {item.name}
-                                      </span>
-                                    </div>
 
-                                    <Button color="info" disabled={false}>
-                                      Mulai Kuis
-                                    </Button>
-                                  </div>
-                                </div>
-                              ) : item.quiz.length === 0 ? (
-                                <div className="card mt-2" id={item.id}>
-                                  <div className="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                      <img
-                                        src={quizIcon}
-                                        width={24}
-                                        className="rounded me-2"
-                                      />
-                                      <span className="text-warning">
-                                        *Kuis belum dibuat pada materi{" "}
-                                        <b>{item.name}</b>
-                                      </span>
+                            {/* Kuis */}
+                            {item?.quiz.length === 0 ? (
+                              <>
+                                {user.role === "guru" ? (
+                                  <div className="card mt-2" id={item.id}>
+                                    <div className="card-body d-flex justify-content-between align-items-center">
+                                      <div>
+                                        <img
+                                          src={quizIcon}
+                                          width={24}
+                                          className="rounded me-2"
+                                        />
+                                        <span className="text-warning">
+                                          *Kuis belum dibuat pada materi{" "}
+                                          <b>{item.name}</b>
+                                        </span>
+                                      </div>
+                                      {detailLesson?.user_id === user.id ? (
+                                        <Link to={`/create-quiz/${item?.id}`}>
+                                          <Button color="info">
+                                            Buat Sekarang!
+                                          </Button>
+                                        </Link>
+                                      ) : (
+                                        <></>
+                                      )}
                                     </div>
-                                    {detailLesson?.user_id === user.id ? (
-                                      <Button color="info">
-                                        Buat Sekarang!
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
+                              </>
+                            ) : user.role === "guru" ? (
+                              <div className="card mt-2" id={item.id}>
+                                <div className="card-body d-flex justify-content-between align-items-center">
+                                  <div>
+                                    <img
+                                      src={quizIcon}
+                                      width={24}
+                                      className="rounded me-2"
+                                    />
+                                    <span className="fw-bold">
+                                      Kuis {item.name}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <Link to={`/quiz/${item?.id}`}>
+                                      <Button color="info" disabled={false}>
+                                        Lihat Kuis
                                       </Button>
+                                    </Link>
+                                    {detailLesson?.user_id === user.id ? (
+                                      <>
+                                        <Link to={`/quiz/${item?.id}`}>
+                                          <Button
+                                            color="success"
+                                            disabled={false}
+                                          >
+                                            Tambah Soal
+                                          </Button>
+                                        </Link>
+                                        <Link to={`/quiz/${item?.id}`}>
+                                          <Button
+                                            color="secondary"
+                                            disabled={false}
+                                          >
+                                            Hapus Kuis
+                                          </Button>
+                                        </Link>
+                                      </>
                                     ) : (
-                                      <></>
+                                      <> </>
                                     )}
                                   </div>
                                 </div>
-                              ) : (
-                                <div className="card mt-2" id={item.id}>
-                                  <div className="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                      <img
-                                        src={quizIcon}
-                                        width={24}
-                                        className="rounded me-2"
-                                      />
-                                      <span className="fw-bold">
-                                        Kuis {item.name}
-                                      </span>
+                              </div>
+                            ) : (
+                              <>
+                                {item.quiz.length !== 0 &&
+                                progressFilter(item.id).length ===
+                                  item.subject.length ? (
+                                  <div className="card mt-2" id={item.id}>
+                                    <div className="card-body d-flex justify-content-between align-items-center">
+                                      <div>
+                                        <img
+                                          src={quizIcon}
+                                          width={24}
+                                          className="rounded me-2"
+                                        />
+                                        <span className="fw-bold">
+                                          Kuis {item.name}
+                                        </span>
+                                      </div>
+
+                                      <Button color="info" disabled={false}>
+                                        Mulai Kuis
+                                      </Button>
                                     </div>
-                                    <Button color="danger" disabled={true}>
-                                      Terkunci
-                                    </Button>
                                   </div>
-                                </div>
-                              )
+                                ) : (
+                                  <div className="card mt-2" id={item.id}>
+                                    <div className="card-body d-flex justify-content-between align-items-center">
+                                      <div>
+                                        <img
+                                          src={quizIcon}
+                                          width={24}
+                                          className="rounded me-2"
+                                        />
+                                        <span className="fw-bold">
+                                          Kuis {item.name}
+                                        </span>
+                                      </div>
+                                      <Button color="danger" disabled={true}>
+                                        Terkunci
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            {/* {load === false ? <></> : <></>} */}
+                            {user.id === detailLesson?.user_id ? (
+                              <Link className="ml-2" to={`/create-chapter`}>
+                                <Button color="success">
+                                  <i className="now-ui-icons ui-1_simple-add"></i>{" "}
+                                  Buat Materi Baru {item.name}
+                                </Button>
+                              </Link>
                             ) : (
                               <></>
                             )}
-                            <Link className="ml-2" to={`/create-chapter`}>
-                              <Button color="success">
-                                <i className="now-ui-icons ui-1_simple-add"></i>{" "}
-                                Buat Materi {item.name}
-                              </Button>
-                            </Link>
                           </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <div style={lockedSubject} className="card mt-2 mb-5">
-                  <div className="card-body d-flex justify-content-between align-items-center">
-                    {/* nama materi */}
-                    <div>
-                      <img
-                        alt="..."
-                        width={24}
-                        className="rounded me-2"
-                        src={certifTest}
-                      ></img>
-                      <span className="fw-bold">
-                        Ujian {detailLesson?.nama_pelajaran}
-                      </span>
+                {detailLesson?.user_id === user.id && user.role === "guru" ? (
+                  <div className="card mt-2 mb-5">
+                    <div className="card-body d-flex justify-content-between align-items-center">
+                      {/* nama materi */}
+                      <div>
+                        <img
+                          alt="..."
+                          width={24}
+                          className="rounded me-2"
+                          src={certifTest}
+                        ></img>{" "}
+                        {detailLesson?.exam?.length === 0 ? (
+                          <span className="text-warning">
+                            *Ujian {detailLesson?.nama_pelajaran} Tidak Tersedia
+                          </span>
+                        ) : (
+                          <span className="fw-bold">
+                            Ujian {detailLesson?.nama_pelajaran}
+                          </span>
+                        )}
+                      </div>
+                      {detailLesson?.exam?.length === 0 &&
+                      user.id === detailLesson?.user_id ? (
+                        <Button color="info">Buat Ujian</Button>
+                      ) : (
+                        <Button color="info">Lihat Ujian</Button>
+                      )}
                     </div>
-                    <Button color="danger" disabled={true}>
-                      Ujian Terkunci
-                    </Button>
                   </div>
-                </div>
+                ) : (
+                  <div style={lockedSubject} className="card mt-2 mb-5">
+                    <div className="card-body d-flex justify-content-between align-items-center">
+                      {/* nama materi */}
+                      <div>
+                        <img
+                          alt="..."
+                          width={24}
+                          className="rounded me-2"
+                          src={certifTest}
+                        ></img>
+                        <span className="fw-bold">
+                          Ujian {detailLesson?.nama_pelajaran}
+                        </span>
+                      </div>
+                      <Button color="danger" disabled={true}>
+                        Ujian Terkunci
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )
           ) : (

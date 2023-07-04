@@ -16,6 +16,8 @@ import IndexNavbar from "./components/Nav/IndexNavbar";
 import Maintenence from "./components/Maintenence";
 import MateriPage from "./components/MateriPage";
 import Quiz from "./components/Quiz";
+import CreateQuiz from "./components/Guru/Quiz/CreateQuiz";
+import MyQuizList from "./components/Guru/Quiz/Quizlist";
 
 const App = () => {
   // const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -69,6 +71,16 @@ const App = () => {
               exact
               path="/quiz/:id"
               element={<Quiz user={user} handleLogout={handleLogout} />}
+            />
+            <Route
+              exact
+              path="/create-quiz/:chapterId"
+              element={<CreateQuiz user={user} handleLogout={handleLogout} />}
+            />
+            <Route
+              exact
+              path="/manage-quiz/:id"
+              element={<MyQuizList user={user} handleLogout={handleLogout} />}
             />
             <Route
               exact

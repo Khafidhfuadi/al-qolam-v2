@@ -272,7 +272,7 @@ function Quiz({ user }) {
               <Container>
                 <Row>
                   <Col>
-                    <h2 className="mt-4 text-capitalize">
+                    <h5 className="mt-4 text-capitalize">
                       {showTerm === true ? (
                         `Pendahuluan | Quiz ${questions[currentQuestion]?.Chapter?.name} | ${questions?.length} Soal`
                       ) : (
@@ -281,7 +281,7 @@ function Quiz({ user }) {
                           Soal Ke {currentQuestion + 1} dari {questions.length}
                         </>
                       )}
-                    </h2>
+                    </h5>
                   </Col>
                   <Col md="3">
                     <Row className="justify-content-end">
@@ -354,12 +354,10 @@ function Quiz({ user }) {
                       {" "}
                       {/* <Countdown date={Date.now() + 10000} renderer={renderer} onComplete={completeCount}/> */}
                     </div>
-                    <div className="question-text">
-                      <h5>
-                        {ReactHtmlParser(
-                          questions[currentQuestion]?.question_text
-                        )}
-                      </h5>
+                    <div className="question-text fw-bold fs-3">
+                      {ReactHtmlParser(
+                        questions[currentQuestion]?.question_text
+                      )}
 
                       {/* <span>{questions[currentQuestion]?.answer_options}</span> */}
                     </div>

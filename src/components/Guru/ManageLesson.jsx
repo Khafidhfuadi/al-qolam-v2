@@ -382,7 +382,7 @@ const ManageLesson = ({ user }) => {
                   <i className="now-ui-icons travel_info"></i> Detail Kelas
                 </button>
               </Link>
-              {row.user_id === userId || roleUser === "admin" ? (
+              {/* {row.user_id === userId || roleUser === "admin" ? (
                 <Link to={`/create-chapter/${row.id}`}>
                   <button
                     type="button"
@@ -395,16 +395,17 @@ const ManageLesson = ({ user }) => {
                 </Link>
               ) : (
                 <></>
-              )}
+              )} */}
               {row.user_id === userId || roleUser === "admin" ? (
                 <>
                   <button
                     type="button"
                     rel="tooltip"
-                    className="btn btn-danger"
+                    className="ms-2 btn btn-danger"
                     onClick={() => deleteLesson(row.id)}
                   >
-                    <i className="now-ui-icons ui-1_simple-remove"></i>
+                    <i className="now-ui-icons ui-1_simple-remove"></i> Hapus
+                    Kelas
                   </button>
                 </>
               ) : (
@@ -701,12 +702,6 @@ const ManageLesson = ({ user }) => {
                           <Button color="info" className="float-right">
                             <i className="now-ui-icons ui-1_simple-add"></i>{" "}
                             Buat Kelas
-                          </Button>
-                        </Link>
-                        <Link to={`/create-question`}>
-                          <Button color="primary" className="float-right">
-                            <i className="now-ui-icons ui-1_simple-add"></i>{" "}
-                            Buat Soal
                           </Button>
                         </Link>
                       </>
