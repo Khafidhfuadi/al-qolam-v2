@@ -12,20 +12,20 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import swal from "sweetalert";
 
-import DotLoad from "../components/loader/dotLoader";
+import DotLoad from "./loader/dotLoader";
 import ReactHtmlParser from "html-react-parser";
 import books from "../assets/img/books.png";
 import logo from "../assets/img/brand-logo.png";
 import tryagain from "../assets/img/try-again.jpg";
 import suc3 from "../assets/img/suc3.png";
 import {
-  fetchDataQuiz,
+  fetchDataExam,
   createUserCertif,
   fetchDataSingleCertif,
   updateUserCertif,
 } from "../utils/constants";
 
-function Quiz({ user }) {
+function Exam({ user }) {
   let { id } = useParams();
   const userId = user.id;
   const roleUser = user.role;
@@ -55,8 +55,8 @@ function Quiz({ user }) {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         swal({
-          title: "Kuis Dibatalkan",
-          text: "Kamu terindikasi meninggalkan halaman kuis, kuis dibatalkan",
+          title: "ujian Dibatalkan",
+          text: "Kamu terindikasi meninggalkan halaman ujian, ujian dibatalkan",
           icon: "error",
           button: "OK",
         }).then(() => {
@@ -74,15 +74,15 @@ function Quiz({ user }) {
 
   React.useEffect(() => {
     setLoad(true);
-    fetchDataQuiz(setQuestions, secondsToHms, setRandomArr, id, setLoad);
-    fetchDataSingleCertif(
-      setCertif,
-      setCreatedAt,
-      setPredikat,
-      setLoad,
-      id,
-      userId
-    );
+    fetchDataExam(setQuestions, secondsToHms, setRandomArr, id, setLoad);
+    // fetchDataSingleCertif(
+    //   setCertif,
+    //   setCreatedAt,
+    //   setPredikat,
+    //   setLoad,
+    //   id,
+    //   userId
+    // );
 
     console.log("questions", questions);
 
@@ -90,20 +90,17 @@ function Quiz({ user }) {
   }, []);
 
   const handleAnswerOptionClick = (isCorrect) => {
-    const nextQuestion = currentQuestion + 1;
     let inputScore;
-
     if (isCorrect === "true") {
-      setScore((prevScore) => {
-        const newScore = prevScore + 1;
-        const e = (newScore / questions.length) * 100;
-        setScoreT(e);
-        console.log("score", e);
-        setAvgScore(Math.floor(newScore));
-        return newScore;
-      });
+      setScore(score + 1);
+      let e = ((score + 1) / questions.length) * 100;
+      inputScore = e;
+      setScoreT(e);
+      setAvgScore(Math.floor(scoreTotal));
+      // console.log("st", scoreTotal);
     }
 
+    const nextQuestion = currentQuestion + 1;
     if (nextQuestion < questions.length) {
       setCurrentQuestion(nextQuestion);
       setRandomArr(
@@ -113,11 +110,16 @@ function Quiz({ user }) {
       );
     } else {
       setShowScore(true);
-
       if (inputScore >= 70 && roleUser === "murid") {
         if (certif.length > 0) {
-          console.log("update", score);
-          updateUserCertif(id, userId, inputScore, certif[0].cf_id);
+          console.log("update", scoreTotal);
+          updateUserCertif(
+            id,
+            userId,
+            inputScore,
+
+            certif[0].cf_id
+          );
         } else {
           console.log("create");
           createUserCertif(id, userId, inputScore);
@@ -129,8 +131,8 @@ function Quiz({ user }) {
   function confirmCancel() {
     // e.preventDefault();
     swal({
-      title: "Batalkan Quiz",
-      text: "Apakah Kamu Yakin Untuk Membatalkan Quiz?",
+      title: "Batalkan Ujian",
+      text: "Apakah Kamu Yakin Untuk Membatalkan Ujian?",
       icon: "warning",
       buttons: true,
 
@@ -142,10 +144,10 @@ function Quiz({ user }) {
     });
   }
 
-  function confirmQuiz() {
+  function confirmUjian() {
     swal({
-      title: "Mulai Quiz",
-      text: "Apakah Kamu Yakin Untuk Memulai Quiz?",
+      title: "Mulai Ujian",
+      text: "Apakah Kamu Yakin Untuk Memulai Ujian?",
       icon: "warning",
       buttons: true,
 
@@ -210,7 +212,7 @@ function Quiz({ user }) {
         questions?.length === 0 ? (
           <div className="section container text-left">
             <p className=" font-weight-bold text-dark">
-              Pengajar Sedang Membuat Quiz Terbaik Untuk Kamu, Tungguin Terus
+              Pengajar Sedang Membuat Ujian Terbaik Untuk Kamu, Tungguin Terus
               Yaa! <br /> - Al-Qolam
             </p>
             <img
@@ -231,30 +233,30 @@ function Quiz({ user }) {
                   <Row>
                     {/* <img width="10rem" alt="..." src={logo}></img> */}
                     <h3 className="mt-4 ml-2">
-                      Quiz {questions[currentQuestion]?.Chapter.name}
+                      Ujian {questions[currentQuestion]?.Lesson.nama_pelajaran}
                     </h3>
                   </Row>
                 </CardTitle>
                 <Row>
                   <Col>
                     <img
-                      width={scoreTotal < 70 ? "400rem" : "310rem"}
+                      width={avgScore < 70 ? "400rem" : "310rem"}
                       alt="..."
                       className="rounded float-right"
-                      src={scoreTotal < 70 ? tryagain : suc3}
+                      src={avgScore < 70 ? tryagain : suc3}
                     ></img>
                   </Col>
                   <Col className="mt-5">
-                    {scoreTotal < 70 ? (
+                    {avgScore < 70 ? (
                       <h3>Semangat, Ayo Coba Lagi!</h3>
                     ) : (
                       <h3>Selamat, Kamu Lolos!</h3>
                     )}
                     <h5>
-                      <b>Nilai {scoreTotal}</b> | Kamu Benar {score} dari{" "}
+                      <b>Nilai {avgScore}</b> | Kamu Benar {score} dari{" "}
                       {questions.length} Soal
                     </h5>
-                    {scoreTotal < 70 ? (
+                    {avgScore < 70 ? (
                       <span className="text-info">
                         *Kamu Harus Memiliki Nilai Setidaknya 70 Untuk
                         Melanjutkan Ke Materi Selanjutnya <br />
@@ -269,7 +271,7 @@ function Quiz({ user }) {
                         <Link to={`detail-bab/${id}`}>
                           <Button color="info">Kembali Ke Materi</Button>
                         </Link>
-                        {scoreTotal < 70 ? (
+                        {avgScore < 70 ? (
                           <Button color="info" onClick={reloadPage}>
                             Coba Lagi
                           </Button>
@@ -297,10 +299,11 @@ function Quiz({ user }) {
                   <Col>
                     <h5 className="mt-4 text-capitalize">
                       {showTerm === true ? (
-                        `Pendahuluan | Quiz ${questions[currentQuestion]?.Chapter?.name} | ${questions?.length} Soal`
+                        `Ujian ${questions[currentQuestion]?.Lesson.nama_pelajaran} | ${questions?.length} Soal`
                       ) : (
                         <>
-                          Quiz {questions[currentQuestion]?.Chapter?.name} |
+                          Ujian{" "}
+                          {questions[currentQuestion]?.Lesson.nama_pelajaran} |
                           Soal Ke {currentQuestion + 1} dari {questions.length}
                         </>
                       )}
@@ -334,10 +337,10 @@ function Quiz({ user }) {
                     <Row>
                       <Col md="8">
                         <ul>
-                          <li>Awali mengerjakan soal quiz dengan berdoa.</li>
+                          <li>Awali mengerjakan soal ujian dengan berdoa.</li>
                           <li>Pilih salah satu jawaban yang dianggap benar.</li>
                           <li>
-                            Kerjakan quiz dengan cermat dan bacalah pertanyaan
+                            Kerjakan ujian dengan cermat dan bacalah pertanyaan
                             dengan teliti.
                           </li>
 
@@ -363,8 +366,8 @@ function Quiz({ user }) {
                             </li>
                             <li>
                               {" "}
-                              Peserta dapat mengulang berkali - kali quiz hingga
-                              lolos.
+                              Peserta dapat mengulang berkali - kali ujian
+                              hingga lolos.
                             </li>
                           </span>
                         </ul>
@@ -404,11 +407,11 @@ function Quiz({ user }) {
                 <div className="d-flex justify-content-between">
                   <Button color="secondary" onClick={() => confirmCancel()}>
                     <i className="now-ui-icons arrows-1_minimal-left"></i>{" "}
-                    Batalkan Quiz
+                    Batalkan Ujian
                   </Button>
                   {showTerm === true ? (
-                    <Button color="info" onClick={() => confirmQuiz()}>
-                      Mulai Quiz{" "}
+                    <Button color="info" onClick={() => confirmUjian()}>
+                      Mulai Ujian{" "}
                       <i className="now-ui-icons arrows-1_minimal-right"></i>
                     </Button>
                   ) : (
@@ -428,4 +431,4 @@ function Quiz({ user }) {
   );
 }
 
-export default Quiz;
+export default Exam;

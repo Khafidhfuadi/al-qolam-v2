@@ -22,6 +22,7 @@ import CreateSubject from "./components/Guru/CreateSubject";
 import AlertTemplate from "react-alert-template-basic";
 import { Provider as AlertProvider } from "react-alert";
 import CreateExam from "./components/Guru/Exam/CreateExam";
+import Exam from "./components/Exam";
 
 
 
@@ -104,6 +105,11 @@ const App = () => {
               exact
               path="/create-subject/:chapterId"
               element={<CreateSubject user={user} handleLogout={handleLogout} />}
+            />
+              <Route
+              exact
+              path="/exam/:id"
+              element={<Exam user={user} handleLogout={handleLogout} />}
             />
               <Route
               exact

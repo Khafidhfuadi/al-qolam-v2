@@ -258,7 +258,7 @@ function KelasDetail({ user, handleLogout }) {
                                   {item?.subject?.length} Materi
                                 </div>
                                 <div className="badge bg-info text-wrap">
-                                  {item?.quiz?.length} Kuis
+                                  {item?.quiz ? "1" : "0"} Kuis
                                 </div>
                                 {user.id === detailLesson?.user_id ? (
                                   <div className="float-end">
@@ -336,7 +336,7 @@ function KelasDetail({ user, handleLogout }) {
                                       </div>
                                     ) : (
                                       <>
-                                        {isSubjectUnlocked(list?.id) ||
+                                        {/* {isSubjectUnlocked(list?.id) ||
                                         isSubjectUnlocked(
                                           item.subject[index - 1]?.id
                                         ) ||
@@ -357,7 +357,16 @@ function KelasDetail({ user, handleLogout }) {
                                           >
                                             Materi Terkunci
                                           </Button>
-                                        )}
+                                        )} */}
+                                        <Button
+                                          onClick={() =>
+                                            checkStart(index, chapterIndex)
+                                          }
+                                          color="info"
+                                          disabled={false}
+                                        >
+                                          Mulai Belajar
+                                        </Button>
                                       </>
                                     )}
                                   </div>
@@ -487,7 +496,7 @@ function KelasDetail({ user, handleLogout }) {
                               >
                                 <Button color="success">
                                   <i className="now-ui-icons ui-1_simple-add"></i>{" "}
-                                  Buat Subjek Baru {item.name}
+                                  Buat Subjek Baru Bab {item.name}
                                 </Button>
                               </Link>
                             ) : (
@@ -526,7 +535,9 @@ function KelasDetail({ user, handleLogout }) {
                           <Button color="info">Buat Ujian</Button>
                         </Link>
                       ) : (
-                        <Button color="info">Lihat Ujian</Button>
+                        <Link to={`/exam/${detailLesson?.id}`}>
+                          <Button color="info">Lihat Ujian</Button>
+                        </Link>
                       )}
                     </div>
                   </div>

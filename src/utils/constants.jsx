@@ -237,3 +237,28 @@ export function updateUserCertif(lessonId, userId, nilaiUjian, idCertif) {
       console.log(error.response);
     });
 }
+
+export function fetchDataExam(
+  setQuestions,
+  secondsToHms,
+  setRandomArr,
+  id,
+  setLoad,
+  access_token
+) {
+  axios
+    .get(`${API_URL}/exam?cari=${id}`, {})
+    .then((response) => {
+      setLoad(false);
+      setQuestions(response.data.data.sort(() => Math.random() - 0.5));
+      secondsToHms(response.data.data.length * 60);
+      setRandomArr(
+        JSON.parse(response.data.data[0].answer_options).list.sort(
+          () => Math.random() - 0.5
+        )
+      );
+    })
+    .catch((response) => {
+      console.log("errorQ", response);
+    });
+}
