@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import { Button, Container, Col, Row, Card } from "reactstrap";
+import { Button, Container } from "reactstrap";
 import IndexNavbar from "../Nav/IndexNavbar";
 import { API_URL, fetchQuizScore } from "../../utils/constants";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { BulletList } from "react-content-loader";
-import AvatarWithText from "../loader/loaderAvatarWithText";
 import { withAuthUser } from "../auth/RouteAccess";
 import BackButton from "../../utils/BackComponent";
 
-import detailbab from "../../assets/img/bab-detail-bg.png";
-import ava from "../../assets/img/muslim.png";
-import book2 from "../../assets/img/book2.png";
 import header2 from "../../assets/img/header2.jpg";
 import authorIcon from "../../assets/img/author.png";
 import quizIcon from "../../assets/img/quiz.png";
@@ -166,7 +162,7 @@ function KelasDetail({ user, handleLogout }) {
                         className="ms-3 me-2"
                       />{" "}
                       Ujian
-                      {detailLesson?.exam?.length === 0 ? (
+                      {detailLesson?.exam === null ? (
                         <> Tidak Tersedia</>
                       ) : (
                         <> Tersedia</>
@@ -237,20 +233,16 @@ function KelasDetail({ user, handleLogout }) {
                             aria-controls={`collapse${chapterIndex}`}
                           >
                             {/* nama chapter */}
-                            <div class="row align-items-center">
-                              <div class="col-md-auto">
+                            <div className="row align-items-center">
+                              <div className="col-md-auto">
                                 <img
                                   alt="..."
                                   width={42}
                                   className="rounded"
-                                  src={
-                                    chapterIndex == 0
-                                      ? require("../../assets/img/play-button.png")
-                                      : require("../../assets/img/padlock.png")
-                                  }
+                                  src={require("../../assets/img/play-button.png")}
                                 ></img>
                               </div>
-                              <div class="col">
+                              <div className="col">
                                 <h5>
                                   <strong>{item.name}</strong>
                                 </h5>
@@ -270,8 +262,14 @@ function KelasDetail({ user, handleLogout }) {
                                 </div>
                                 {user.id === detailLesson?.user_id ? (
                                   <div className="float-end">
-                                    <Button color="success">Edit Bab</Button>
-                                    <Button color="secondary">Hapus Bab</Button>
+                                    {/* <Button color="success">Edit Bab</Button>
+                                    <Button color="secondary">Hapus Bab</Button> */}
+                                    <div className="btn btn-success">
+                                      Edit Bab
+                                    </div>
+                                    <div className="btn btn-secondary">
+                                      Hapus Bab
+                                    </div>
                                   </div>
                                 ) : (
                                   <></>
@@ -318,7 +316,11 @@ function KelasDetail({ user, handleLogout }) {
 
                                     {user.role === "guru" ? (
                                       <div>
-                                        <Button color="info">Lihat</Button>
+                                        <Link
+                                          to={`/bab-materi/${id}/chapter/${chapterIndex}/subject/${index}`}
+                                        >
+                                          <Button color="info">Lihat</Button>
+                                        </Link>
                                         {user.id === detailLesson?.user_id ? (
                                           <>
                                             <Button color="success">
@@ -364,7 +366,7 @@ function KelasDetail({ user, handleLogout }) {
                             })}
 
                             {/* Kuis */}
-                            {item?.quiz.length === 0 ? (
+                            {item?.quiz === null ? (
                               <>
                                 {user.role === "guru" ? (
                                   <div className="card mt-2" id={item.id}>
@@ -381,7 +383,9 @@ function KelasDetail({ user, handleLogout }) {
                                         </span>
                                       </div>
                                       {detailLesson?.user_id === user.id ? (
-                                        <Link to={`/create-quiz/${item?.id}`}>
+                                        <Link
+                                          to={`/create-question/${item?.id}`}
+                                        >
                                           <Button color="info">
                                             Buat Sekarang!
                                           </Button>
@@ -411,25 +415,17 @@ function KelasDetail({ user, handleLogout }) {
                                   <div>
                                     <Link to={`/quiz/${item?.id}`}>
                                       <Button color="info" disabled={false}>
-                                        Lihat Kuis
+                                        Preview Kuis
                                       </Button>
                                     </Link>
                                     {detailLesson?.user_id === user.id ? (
                                       <>
-                                        <Link to={`/quiz/${item?.id}`}>
+                                        <Link to={`/manage-quiz/${item?.id}`}>
                                           <Button
                                             color="success"
                                             disabled={false}
                                           >
-                                            Tambah Soal
-                                          </Button>
-                                        </Link>
-                                        <Link to={`/quiz/${item?.id}`}>
-                                          <Button
-                                            color="secondary"
-                                            disabled={false}
-                                          >
-                                            Hapus Kuis
+                                            Kelola Kuis
                                           </Button>
                                         </Link>
                                       </>
@@ -441,7 +437,7 @@ function KelasDetail({ user, handleLogout }) {
                               </div>
                             ) : (
                               <>
-                                {item.quiz.length !== 0 &&
+                                {item.quiz !== null &&
                                 progressFilter(item.id).length ===
                                   item.subject.length ? (
                                   <div className="card mt-2" id={item.id}>
@@ -485,10 +481,13 @@ function KelasDetail({ user, handleLogout }) {
                             )}
                             {/* {load === false ? <></> : <></>} */}
                             {user.id === detailLesson?.user_id ? (
-                              <Link className="ml-2" to={`/create-chapter`}>
+                              <Link
+                                className="ml-2"
+                                to={`/create-subject/${item.id}`}
+                              >
                                 <Button color="success">
                                   <i className="now-ui-icons ui-1_simple-add"></i>{" "}
-                                  Buat Materi Baru {item.name}
+                                  Buat Subjek Baru {item.name}
                                 </Button>
                               </Link>
                             ) : (
@@ -511,7 +510,7 @@ function KelasDetail({ user, handleLogout }) {
                           className="rounded me-2"
                           src={certifTest}
                         ></img>{" "}
-                        {detailLesson?.exam?.length === 0 ? (
+                        {detailLesson?.exam === null ? (
                           <span className="text-warning">
                             *Ujian {detailLesson?.nama_pelajaran} Tidak Tersedia
                           </span>
@@ -521,9 +520,11 @@ function KelasDetail({ user, handleLogout }) {
                           </span>
                         )}
                       </div>
-                      {detailLesson?.exam?.length === 0 &&
+                      {detailLesson?.exam === null &&
                       user.id === detailLesson?.user_id ? (
-                        <Button color="info">Buat Ujian</Button>
+                        <Link to={`/create-exam/${detailLesson?.id}`}>
+                          <Button color="info">Buat Ujian</Button>
+                        </Link>
                       ) : (
                         <Button color="info">Lihat Ujian</Button>
                       )}

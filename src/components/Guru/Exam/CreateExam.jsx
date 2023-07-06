@@ -15,10 +15,10 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useParams } from "react-router-dom";
 import ExamplesNavbar from "../../Nav/ExampleNavbar";
 
-export default function CreateQuiz({ user }) {
+export default function CreateExam({ user }) {
   const alert = useAlert();
   // const { token, userId } = props;
-  let { chapterId } = useParams();
+  let { lessonId } = useParams();
 
   const [valButton, setValB] = useState("Pilih Kelas");
   const [chapterName, setChapterName] = useState([]);
@@ -32,10 +32,10 @@ export default function CreateQuiz({ user }) {
 
   async function fetchChapterName() {
     axios
-      .get(`${API_URL}/chapter/${chapterId}`)
+      .get(`${API_URL}/lessons/${lessonId}`)
       .then((response) => {
-        setChapterName(response.data.name);
-        console.log("chapter name", response.data.name);
+        setChapterName(response.data.nama_pelajaran);
+        console.log("lesson name", response.data.name);
         setIndexes([
           { answerText: "", isCorrect: "true" },
           { answerText: "", isCorrect: "false" },
@@ -85,17 +85,17 @@ export default function CreateQuiz({ user }) {
 
     axios({
       method: "post",
-      url: `${API_URL}/quiz`,
+      url: `${API_URL}/exam`,
       data: {
         user_id: user.id,
-        chapter_id: chapterId,
+        lesson_id: lessonId,
         question_text: questionQ,
         answer_options: jsonAns,
       },
     })
       .then(function (response) {
         setLoadSub(false);
-        alert.success(<div className="notif">Berhasil membuat Soal Quiz!</div>);
+        alert.success(<div className="notif">Berhasil membuat Soal Ujian!</div>);
         //handle success
         fetchChapterName();
       })
@@ -124,7 +124,7 @@ export default function CreateQuiz({ user }) {
           <div className="mt-2">
             <BackButton />
             <h2>
-              Buat Soal untuk Quiz <b> {chapterName}</b>
+              Buat Soal untuk Ujian <b> {chapterName}</b>
             </h2>
             <hr />
             <form
@@ -135,7 +135,7 @@ export default function CreateQuiz({ user }) {
               <Row>
                 <Col lg="7" sm="10">
                   <FormGroup className="font-weight-bold">
-                    <Label>Soal Quiz</Label>
+                    <Label>Soal Ujian</Label>
                     <CKEditor
                       required
                       className="font-weight-bold"

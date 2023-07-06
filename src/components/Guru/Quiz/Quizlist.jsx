@@ -1,24 +1,22 @@
 import React, { useState } from "react";
-import { Container, Form, FormGroup, Label, Row, Spinner } from "reactstrap";
-import IndexNavbar from "components/Navbars/IndexNavbar";
-import { API_URL } from "utils/constants";
+import { Container, Form, FormGroup, Label, Spinner, Button } from "reactstrap";
+import IndexNavbar from "../../Nav/IndexNavbar";
+import { API_URL } from "../../../utils/constants";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { BulletList } from "react-content-loader";
-import DetailHeader from "components/Headers/DetailHeader";
-import Button from "reactstrap/lib/Button";
+import DetailHeader from "../../Headers/DetailHeader";
 import swal from "sweetalert";
-import TransparentFooter from "components/Footers/TransparentFooter";
-import BackButton from "utils/BackComponent";
+import BackButton from "../../../utils/BackComponent";
 import { useForm } from "react-hook-form";
-import { useAlert } from "react-alert";
-import ReactHtmlParser from "react-html-parser";
+// import { useAlert } from "react-alert";
+import ReactHtmlParser from "html-react-parser";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 const MyBulletListLoader = () => <BulletList />;
 
-const MyQuizList = (props) => {
-  const alert = useAlert();
+const QuizList = ({ user }) => {
+  // const alert = useAlert();
   let { id } = useParams();
   let [quizL, setQuizList] = React.useState([]);
   const [load, setLoad] = useState(true);
@@ -28,15 +26,11 @@ const MyQuizList = (props) => {
   const [listNum, setListNum] = useState(0);
   const [indexes, setIndexes] = React.useState([]);
 
-  const { token, idUser } = props;
+  const idUser = user.id;
 
   async function fetchData() {
     axios
-      .get(`${API_URL}quiz?cari=${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .get(`${API_URL}/quiz?cari=${id}`)
       .then((response) => {
         setLoad(false);
         setQuizList(response.data.data);
@@ -48,17 +42,14 @@ const MyQuizList = (props) => {
   }
 
   function editData(idEdit) {
+    console.log("idEdit", idEdit);
     axios
-      .get(`${API_URL}quiz/${idEdit}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .get(`${API_URL}/quiz/${idEdit}`)
       .then((response) => {
         setLoad(false);
         setSingleQ(response.data);
-        setIndexes(JSON.parse(response.data[0].answer_options).list);
-        console.log("skjsk", indexes);
+        setIndexes(JSON.parse(response.data.answer_options).list);
+        console.log("data single", singleQ);
       })
       .catch((response) => {
         console.log("errorQ", response);
@@ -77,8 +68,8 @@ const MyQuizList = (props) => {
 
   const [questionQ, setQuestionQ] = React.useState("");
   if (questionQ === "") {
-    if (singleQ[0]?.question_text !== undefined) {
-      setQuestionQ(singleQ[0]?.question_text);
+    if (singleQ?.question_text !== undefined) {
+      setQuestionQ(singleQ?.question_text);
     }
   }
 
@@ -93,7 +84,7 @@ const MyQuizList = (props) => {
     if (indexes.length < 2) {
       setLoadSub(false);
 
-      alert.error(<div className="notif">Isi Opsi Jawaban Minimal 2</div>);
+      // alert.error(<div className="notif">Isi Opsi Jawaban Minimal 2</div>);
       return false;
     } else if (
       data.list[0]?.answerText === "" ||
@@ -102,7 +93,7 @@ const MyQuizList = (props) => {
     ) {
       setLoadSub(false);
 
-      alert.error(<div className="notif">Isi Bagian Yang Kosong!</div>);
+      // alert.error(<div className="notif">Isi Bagian Yang Kosong!</div>);
       return false;
     } else if (
       data.list[0]?.isCorrect === "" ||
@@ -111,46 +102,42 @@ const MyQuizList = (props) => {
     ) {
       setLoadSub(false);
 
-      alert.error(
-        <div className="notif">Pilih Jawaban Yang Benar dan salah!</div>
-      );
+      // alert.error(
+      //   <div className="notif">Pilih Jawaban Yang Benar dan salah!</div>
+      // );
       return false;
     }
 
     axios({
       method: "put",
-      url: `${API_URL}quiz/${idEdit}`,
+      url: `${API_URL}/quiz/${idEdit}`,
       data: {
-        user_id: singleQ[0]?.user_id,
-        lesson_id: singleQ[0]?.lesson_id,
-        pelajaran: singleQ[0]?.pelajaran,
+        user_id: singleQ?.user_id,
+        chapter_id: singleQ?.chapter_id,
         question_text: questionQ,
         answer_options: jsonAns,
-      },
-      headers: {
-        ContentType: "multipart/form-data",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
       .then(function (response) {
         setLoadSub(false);
-        alert.success(
-          <div className="notif">Berhasil mengedit Soal Quiz!</div>
-        );
+        // alert.success(
+        //   <div className="notif">Berhasil mengedit Soal Quiz!</div>
+        // );
         //handle success
-        console.log(response);
-      })
-      .then(() => {
-        fetchData();
-        // setSingleQ([]);
+        // unset
+        setSingleQ([]);
         setIndexes([]);
         setChange("list");
+        fetchData();
+
+        console.log(response);
       })
       .catch(function (error) {
         setLoad(false);
-
-        alert.error(<div className="notif">Gagal mengedit Soal Quiz</div>);
+        setSingleQ([]);
+        setIndexes([]);
+        setChange("list");
+        // alert.error(<div className="notif">Gagal mengedit Soal Quiz</div>);
         console.log(error.response);
       });
   };
@@ -167,11 +154,7 @@ const MyQuizList = (props) => {
     }).then((willDelete) => {
       if (willDelete) {
         axios
-          .delete(`${API_URL}quiz/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          .delete(`${API_URL}/quiz/${id}`, {})
           .then((res) => {
             swal({
               title: "Berhasil!",
@@ -202,9 +185,9 @@ const MyQuizList = (props) => {
         <DetailHeader
           header={
             load === false
-              ? quizL[0]?.pelajaran === undefined
+              ? quizL[0]?.Chapter.name === undefined
                 ? "Daftar Soal Ujian"
-                : "Daftar Soal Ujian " + quizL[0]?.pelajaran
+                : "Daftar Soal Ujian " + quizL[0]?.Chapter.name
               : undefined
           }
           subHeader={
@@ -212,22 +195,20 @@ const MyQuizList = (props) => {
               ? "Soal Tidak Tersedia Di Kelas Ini"
               : quizL?.length + " Soal Tersedia Di Kelas Ini"
           }
-          img={require("assets/img/quizlist.jpg")}
+          img={require("../../../assets/img/quizlist.jpg")}
         />
         <Container className="mt-4">
-          <Row className="d-flex">
-            <BackButton />
-            <Link className="ml-2" to={`/create-question`}>
-              <Button color="info" className="float-right">
-                <i className="now-ui-icons ui-1_simple-add"></i> Buat Soal
-              </Button>
-            </Link>
-            <Link className="ml-2" to={`/quiz/${id}`}>
-              <Button color="info" className="float-right">
-                Mulai Ujian
-              </Button>
-            </Link>
-          </Row>
+          <BackButton />
+          <Link className="ml-2" to={`/create-question/${id}`}>
+            <Button color="info" className="float-right">
+              <i className="now-ui-icons ui-1_simple-add"></i> Buat Soal
+            </Button>
+          </Link>
+          <Link className="ml-2" to={`/quiz/${id}`}>
+            <Button color="info" className="float-right">
+              Mulai Ujian
+            </Button>
+          </Link>
           {load === false ? (
             quizL?.length === 0 ? (
               <div className="container">
@@ -244,7 +225,7 @@ const MyQuizList = (props) => {
                   <img
                     width="250rem"
                     alt="..."
-                    src={require("assets/img/books.png")}
+                    src={require("../../../assets/img/books.png")}
                   ></img>
                 </div>
               </div>
@@ -258,28 +239,8 @@ const MyQuizList = (props) => {
                           <h4 className="font-weight-bold">
                             Soal Ke - {index + 1} <hr />
                           </h4>
-                          <h5 className="font-weight-bold">Soal Quiz : </h5>
-                          <span>{ReactHtmlParser(list?.question_text)}</span>
-                          <h5 className="font-weight-bold">Opsi Jawaban : </h5>
-
-                          <ul>
-                            {JSON.parse(list?.answer_options).list?.map(
-                              (data, index) => {
-                                return (
-                                  <li key={index}>
-                                    {data?.answerText}
-                                    <span>
-                                      {data?.isCorrect === "true"
-                                        ? " ✔️"
-                                        : " ❌"}
-                                    </span>
-                                  </li>
-                                );
-                              }
-                            )}
-                          </ul>
                           {list?.user_id === idUser ? (
-                            <div>
+                            <div className="float-end">
                               <Button
                                 onClick={() => {
                                   editData(list?.id);
@@ -303,6 +264,26 @@ const MyQuizList = (props) => {
                           ) : (
                             <></>
                           )}
+                          <h5 className="font-weight-bold">Soal Quiz : </h5>
+                          <span>{ReactHtmlParser(list?.question_text)}</span>
+                          <h5 className="font-weight-bold">Opsi Jawaban : </h5>
+
+                          <ul>
+                            {JSON.parse(list?.answer_options).list?.map(
+                              (data, index) => {
+                                return (
+                                  <li key={index}>
+                                    {data?.answerText}
+                                    <span>
+                                      {data?.isCorrect === "true"
+                                        ? " ✔️"
+                                        : " ❌"}
+                                    </span>
+                                  </li>
+                                );
+                              }
+                            )}
+                          </ul>
                         </div>
                       </div>
                     </div>
@@ -318,7 +299,7 @@ const MyQuizList = (props) => {
                         <h4 className="font-weight-bold">
                           Edit Soal Ke - {listNum + 1}
                         </h4>
-                        {singleQ[0]?.question_text === undefined ? (
+                        {singleQ?.question_text === undefined ? (
                           <h4 className="text-secondary">Memuat...</h4>
                         ) : (
                           <Form onSubmit={handleSubmit(onSubmit)}>
@@ -328,8 +309,8 @@ const MyQuizList = (props) => {
                                 required
                                 className="font-weight-bold"
                                 editor={ClassicEditor}
-                                data={singleQ[0]?.question_text}
-                                defaultValue={singleQ[0]?.question_text}
+                                data={singleQ?.question_text}
+                                defaultValue={singleQ?.question_text}
                                 onChange={(event, editor) => {
                                   const data = editor.getData();
                                   setQuestionQ(data);
@@ -377,31 +358,30 @@ const MyQuizList = (props) => {
                                 </fieldset>
                               );
                             })}
-
-                            {loadSub === true ? (
-                              <Spinner className="float-right"></Spinner>
-                            ) : (
-                              <button
-                                type="submit"
-                                className="btn btn-success btn-round float-right"
-                              >
-                                Submit
-                              </button>
-                            )}
                             <Button
                               onClick={() => {
                                 setSingleQ([]);
                                 setIndexes([]);
                                 setChange("list");
                               }}
-                              color="danger"
+                              color="secondary"
                               className="float-left"
                             >
                               Batal Edit
                             </Button>
+                            {loadSub === true ? (
+                              <Spinner className="float-right"></Spinner>
+                            ) : (
+                              <button
+                                type="submit"
+                                className="btn btn-success float-right"
+                              >
+                                Submit
+                              </button>
+                            )}
                           </Form>
                         )}
-                        {singleQ[0]?.question_text === undefined ? (
+                        {singleQ?.question_text === undefined ? (
                           <Button
                             onClick={() => {
                               setSingleQ([]);
@@ -427,9 +407,8 @@ const MyQuizList = (props) => {
           )}
         </Container>
       </div>
-      <TransparentFooter />
     </div>
   );
 };
 
-export default MyQuizList;
+export default QuizList;

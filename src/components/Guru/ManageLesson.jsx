@@ -633,7 +633,7 @@ const ManageLesson = ({ user }) => {
                       // eslint-disable-next-line
                       switch (typeList) {
                         case "AllClass":
-                          return <h2>Daftar Kelas</h2>;
+                          return <h2>Daftar Semua Kelas</h2>;
                         case "MyClass":
                           return <h2>Daftar Kelas Saya</h2>;
                       }
@@ -656,8 +656,8 @@ const ManageLesson = ({ user }) => {
                             width="25rem"
                             src={
                               typeList === "MyClass"
-                                ? "./my-list-active.png"
-                                : "./my-list.png"
+                                ? require("../../assets/img/my-list-active.png")
+                                : require("../../assets/img/my-list.png")
                             }
                             alt="..."
                           />
@@ -676,8 +676,8 @@ const ManageLesson = ({ user }) => {
                             width="25rem"
                             src={
                               typeList === "AllClass"
-                                ? "./group-list-active.png"
-                                : "./group-list.png"
+                                ? require("../../assets/img/group-list-active.png")
+                                : require("../../assets/img/group-list.png")
                             }
                             alt="..."
                           />

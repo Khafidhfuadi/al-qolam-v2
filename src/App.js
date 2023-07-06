@@ -17,7 +17,13 @@ import Maintenence from "./components/Maintenence";
 import MateriPage from "./components/MateriPage";
 import Quiz from "./components/Quiz";
 import CreateQuiz from "./components/Guru/Quiz/CreateQuiz";
-import MyQuizList from "./components/Guru/Quiz/Quizlist";
+import MyQuizList from "./components/Guru/Quiz/QuizList";
+import CreateSubject from "./components/Guru/CreateSubject";
+import AlertTemplate from "react-alert-template-basic";
+import { Provider as AlertProvider } from "react-alert";
+import CreateExam from "./components/Guru/Exam/CreateExam";
+
+
 
 const App = () => {
   // const savedUser = JSON.parse(localStorage.getItem("user"));
@@ -46,7 +52,19 @@ const App = () => {
     setUser(null);
   };
 
+  const options = {
+    position: "bottom right",
+    timeout: 3000,
+    offset: "30px",
+    transition: "scale",
+    containerStyle: {
+      zIndex: 1000,
+    },
+  };
+
   return (
+    <AlertProvider template={AlertTemplate} {...options}>
+
     <Router>
       <div>
         <Routes>
@@ -74,7 +92,7 @@ const App = () => {
             />
             <Route
               exact
-              path="/create-quiz/:chapterId"
+              path="/create-question/:chapterId"
               element={<CreateQuiz user={user} handleLogout={handleLogout} />}
             />
             <Route
@@ -82,6 +100,17 @@ const App = () => {
               path="/manage-quiz/:id"
               element={<MyQuizList user={user} handleLogout={handleLogout} />}
             />
+             <Route
+              exact
+              path="/create-subject/:chapterId"
+              element={<CreateSubject user={user} handleLogout={handleLogout} />}
+            />
+              <Route
+              exact
+              path="/create-exam/:lessonId"
+              element={<CreateExam user={user} handleLogout={handleLogout} />}
+            />
+
             <Route
               exact
               path="/detail-profil"
@@ -92,6 +121,7 @@ const App = () => {
         </Routes>
       </div>
     </Router>
+    </AlertProvider>
   );
 };
 

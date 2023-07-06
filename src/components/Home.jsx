@@ -11,7 +11,7 @@ const Home = ({ user, handleLogout }) => {
         <MuridDashboard user={user} handleLogout={handleLogout} />
       ) : // <Test />
       user && user?.role === "guru" ? (
-        <GuruDashboard user={user} />
+        <GuruDashboard user={user} handleLogout={handleLogout} />
       ) : user && user?.role === "admin" ? (
         <AdminDashboard user={user} />
       ) : null}
