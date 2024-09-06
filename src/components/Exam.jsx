@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Container,
@@ -23,6 +23,8 @@ import {
   createUserCertif,
   fetchDataSingleCertif,
   updateUserCertif,
+  isExamDone,
+  updateExamScore,
 } from "../utils/constants";
 
 function Exam({ user }) {
@@ -40,23 +42,25 @@ function Exam({ user }) {
   const [scoreTotal, setScoreT] = useState(0);
   const [avgScore, setAvgScore] = useState(0);
   const [load, setLoad] = useState();
+  const [lessonName, setLessonName] = useState("");
   const navigate = useNavigate();
   // const { roleUser, access_token, userId } = props;
 
   const [certif, setCertif] = React.useState([]);
   const [createdAt, setCreatedAt] = React.useState("");
   const [predikat, setPredikat] = React.useState([]);
+  const [isExam, setIsExamDone] = useState([]);
 
   const MyBulletListLoader = () => <DotLoad />;
 
   const [pageVisible, setPageVisible] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
+      if (!showTerm && !showScore && document.visibilityState === "hidden") {
         swal({
-          title: "ujian Dibatalkan",
-          text: "Kamu terindikasi meninggalkan halaman ujian, ujian dibatalkan",
+          title: "Kuis Dibatalkan",
+          text: "Kamu terindikasi meninggalkan halaman kuis, kuis dibatalkan",
           icon: "error",
           button: "OK",
         }).then(() => {
@@ -70,55 +74,92 @@ function Exam({ user }) {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [showTerm, showScore, navigate]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLoad(true);
-    fetchDataExam(setQuestions, secondsToHms, setRandomArr, id, setLoad);
+    fetchDataExam(
+      (data) => {
+        console.log("Raw Questions Data:", data[0]?.questions); // Debugging
+        console.log("Type of Questions Data:", typeof data[0]?.questions); // Debugging
 
-    console.log("questions", questions);
+        let parsedQuestions = [];
+        if (typeof data[0]?.questions === "string") {
+          try {
+            parsedQuestions = JSON.parse(data[0].questions);
+            console.log("Parsed Questions:", parsedQuestions); // Debugging
+          } catch (error) {
+            console.error("JSON Parsing Error:", error);
+          }
+        } else if (Array.isArray(data[0]?.questions)) {
+          parsedQuestions = data[0]?.questions; // Directly assign if it's already an object
+        }
 
-    // eslint-disable-next-line
-  }, []);
+        setLessonName(data[0]?.Lesson?.nama_pelajaran || "");
+        setQuestions(parsedQuestions);
+        if (parsedQuestions.length > 0) {
+          const initialAnswers = parsedQuestions[0]?.answers || [];
+          setRandomArr(initialAnswers.sort(() => Math.random() - 0.5));
+        }
+        setLoad(false);
+      },
+      (seconds) => secondsToHms(seconds),
+      setRandomArr,
+      id,
+      setLoad
+    );
+    isExamDone(setIsExamDone, setLoad, id, userId);
+  }, [id, userId]);
+
+  useEffect(() => {
+    if (questions.length > 0) {
+      console.log("Current Question Data:", questions[currentQuestion]); // Debugging
+      const answers = questions[currentQuestion]?.answers || [];
+      console.log("Answers:", answers); // Debugging
+      setRandomArr(answers.sort(() => Math.random() - 0.5));
+    }
+  }, [questions, currentQuestion]);
+
+  useEffect(() => {
+    console.log("Current Question Data:", questions[currentQuestion]); // Debugging
+    console.log("Lesson Name:", lessonName); // Debugging
+  }, [questions, currentQuestion]);
 
   const handleAnswerOptionClick = (isCorrect) => {
-    let inputScore;
+    const nextQuestion = currentQuestion + 1;
+
     if (isCorrect === "true") {
-      setScore(score + 1);
-      let e = ((score + 1) / questions.length) * 100;
-      inputScore = e;
-      setScoreT(e);
-      setAvgScore(Math.floor(scoreTotal));
-      // console.log("st", scoreTotal);
+      setScore((prevScore) => {
+        const newScore = prevScore + 1;
+        const e = (newScore / questions.length) * 100;
+        setScoreT(e);
+        setAvgScore(Math.floor(newScore));
+        return newScore;
+      });
     }
 
-    const nextQuestion = currentQuestion + 1;
     if (nextQuestion < questions.length) {
-      setCurrentQuestion(nextQuestion);
+      const nextQuestionData = questions[nextQuestion];
       setRandomArr(
-        JSON.parse(questions[currentQuestion + 1].answer_options).list.sort(
-          () => Math.random() - 0.5
-        )
+        nextQuestionData?.answers?.sort(() => Math.random() - 0.5) || []
       );
+      setCurrentQuestion(nextQuestion);
     } else {
       setShowScore(true);
-      if (inputScore >= 70 && roleUser === "murid") {
-        if (certif.length > 0) {
-          console.log("update", scoreTotal);
-          updateUserCertif(
-            id,
-            userId,
-            inputScore,
-
-            certif[0].cf_id
-          );
-        } else {
-          console.log("create");
-          createUserCertif(id, userId, inputScore);
-        }
-      }
     }
   };
+
+  useEffect(() => {
+    if (showScore && scoreTotal >= 70 && roleUser === "murid") {
+      if (certif.length > 0) {
+        if (certif[0].score < scoreTotal) {
+          updateUserCertif(id, userId, scoreTotal, certif[0].cf_id);
+        }
+      } else {
+        createUserCertif(id, userId, scoreTotal);
+      }
+    }
+  }, [showScore, scoreTotal, roleUser, isExam, userId, id]);
 
   function confirmCancel() {
     // e.preventDefault();
@@ -172,9 +213,20 @@ function Exam({ user }) {
   const [minutes, setMinutes] = useState(1);
   const [seconds, setSeconds] = useState(2);
 
+  const calculateTotalTime = (numQuestions) => {
+    return numQuestions; // 1 minute per question
+  };
+
+  React.useEffect(() => {
+    if (questions.length > 0) {
+      const totalMinutes = calculateTotalTime(questions.length);
+      setMinutes(totalMinutes);
+      setSeconds(0); // Start from 0 seconds
+    }
+  }, [questions]);
+
   React.useEffect(() => {
     let myInterval;
-
     if (showTerm === false && pageVisible) {
       myInterval = setInterval(() => {
         setSeconds((prevSeconds) => {
@@ -196,7 +248,7 @@ function Exam({ user }) {
     return () => {
       clearInterval(myInterval);
     };
-  }, [showTerm, minutes, seconds]);
+  }, [showTerm, minutes, seconds, pageVisible]);
 
   return (
     <div>
@@ -225,30 +277,30 @@ function Exam({ user }) {
                   <Row>
                     {/* <img width="10rem" alt="..." src={logo}></img> */}
                     <h3 className="mt-4 ml-2">
-                      Ujian {questions[currentQuestion]?.Lesson.nama_pelajaran}
+                      Ujian {lessonName} | {questions.length} Soal
                     </h3>
                   </Row>
                 </CardTitle>
                 <Row>
                   <Col>
                     <img
-                      width={avgScore < 70 ? "400rem" : "310rem"}
+                      width={scoreTotal < 70 ? "400rem" : "310rem"}
                       alt="..."
                       className="rounded float-right"
-                      src={avgScore < 70 ? tryagain : suc3}
+                      src={scoreTotal < 70 ? tryagain : suc3}
                     ></img>
                   </Col>
                   <Col className="mt-5">
-                    {avgScore < 70 ? (
+                    {scoreTotal < 70 ? (
                       <h3>Semangat, Ayo Coba Lagi!</h3>
                     ) : (
                       <h3>Selamat, Kamu Lolos!</h3>
                     )}
                     <h5>
-                      <b>Nilai {avgScore}</b> | Kamu Benar {score} dari{" "}
+                      <b>Nilai {scoreTotal}</b> | Kamu Benar {score} dari{" "}
                       {questions.length} Soal
                     </h5>
-                    {avgScore < 70 ? (
+                    {scoreTotal < 70 ? (
                       <span className="text-info">
                         *Kamu Harus Memiliki Nilai Setidaknya 70 Untuk
                         Melanjutkan Ke Materi Selanjutnya <br />
@@ -263,7 +315,7 @@ function Exam({ user }) {
                         <Link to={`detail-bab/${id}`}>
                           <Button color="info">Kembali Ke Materi</Button>
                         </Link>
-                        {avgScore < 70 ? (
+                        {scoreTotal < 70 ? (
                           <Button color="info" onClick={reloadPage}>
                             Coba Lagi
                           </Button>
@@ -291,12 +343,11 @@ function Exam({ user }) {
                   <Col>
                     <h5 className="mt-4 text-capitalize">
                       {showTerm === true ? (
-                        `Ujian ${questions[currentQuestion]?.Lesson.nama_pelajaran} | ${questions?.length} Soal`
+                        `Ujian ${lessonName} | ${questions?.length} Soal`
                       ) : (
                         <>
-                          Ujian{" "}
-                          {questions[currentQuestion]?.Lesson.nama_pelajaran} |
-                          Soal Ke {currentQuestion + 1} dari {questions.length}
+                          Ujian {lessonName} | Soal Ke {currentQuestion + 1}{" "}
+                          dari {questions.length}
                         </>
                       )}
                     </h5>
@@ -311,7 +362,6 @@ function Exam({ user }) {
                             minutes === 0 && seconds < 30 ? "text-danger" : ""
                           }`}
                         >
-                          {" "}
                           {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
                         </h1>
                       )}
@@ -368,32 +418,24 @@ function Exam({ user }) {
                   </>
                 ) : (
                   <>
-                    <div className="question-count">
-                      {" "}
-                      {/* <Countdown date={Date.now() + 10000} renderer={renderer} onComplete={completeCount}/> */}
-                    </div>
                     <div className="question-text fw-bold fs-3">
                       {ReactHtmlParser(
-                        questions[currentQuestion]?.question_text
+                        questions[currentQuestion]?.question_text || ""
                       )}
-
-                      {/* <span>{questions[currentQuestion]?.answer_options}</span> */}
                     </div>
-                    {randomArr.map((data, index) => {
-                      return (
-                        <Row className="ml-1" key={index}>
-                          <Button
-                            className="btn-block btn-info"
-                            size="lg"
-                            onClick={() =>
-                              handleAnswerOptionClick(data?.isCorrect)
-                            }
-                          >
-                            {data?.answerText}
-                          </Button>
-                        </Row>
-                      );
-                    })}
+                    {randomArr.map((data, index) => (
+                      <Row className="ml-1" key={index}>
+                        <Button
+                          className="btn-block btn-info"
+                          size="lg"
+                          onClick={() =>
+                            handleAnswerOptionClick(data?.isCorrect)
+                          }
+                        >
+                          {data?.answerText}
+                        </Button>
+                      </Row>
+                    ))}
                   </>
                 )}
                 <div className="d-flex justify-content-between">

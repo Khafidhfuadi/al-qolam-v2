@@ -205,6 +205,38 @@ export function isQuizDone(setQuizDone, setLoad, chapter_id, userId) {
     });
 }
 
+// isExamDone
+export function isExamDone(setExamDone, setLoad, lesson_id, userId) {
+  axios
+    .get(`${API_URL}/examscore?lesson_id=${lesson_id}&user_id=${userId}`, {})
+    .then((response) => {
+      setExamDone(response.data.data);
+      console.log("exam done", response.data.data);
+      setLoad(false);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+//update exam score
+export function updateExamScore(id, score) {
+  axios({
+    method: "put",
+    url: `${API_URL}/examscore/${id}`,
+    data: {
+      score: score,
+    },
+  })
+    .then(function (response) {
+      //handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error.response);
+    });
+}
+
 // updateQuizScore
 export function updateQuizScore(id, score) {
   axios({
