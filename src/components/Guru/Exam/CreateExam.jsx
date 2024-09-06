@@ -1,172 +1,182 @@
-import DetailHeader from "../../Headers/DetailHeader";
 import React, { useState } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-
-// reactstrap components
-import { Label, FormGroup, Container, Row, Col } from "reactstrap";
-import Spinner from "reactstrap/lib/Spinner";
+import {
+  Label,
+  FormGroup,
+  Container,
+  Row,
+  Col,
+  Button,
+  Spinner,
+} from "reactstrap";
 import { API_URL } from "../../../utils/constants";
 import { useAlert } from "react-alert";
-// import TransparentFooter from "components/Footers/TransparentFooter";
-import BackButton from "../../../utils/BackComponent";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { useParams } from "react-router-dom";
-import ExamplesNavbar from "../../Nav/ExampleNavbar";
+import { useNavigate, useParams } from "react-router-dom";
+import BackButton from "../../../utils/BackComponent";
 
 export default function CreateExam({ user }) {
   const alert = useAlert();
-  // const { token, userId } = props;
   let { lessonId } = useParams();
+  const navigate = useNavigate();
 
-  const [valButton, setValB] = useState("Pilih Kelas");
-  const [chapterName, setChapterName] = useState([]);
-  // const [pelajaran, setPel] = useState("");
-  // const [lessonId, setLessonId] = useState("");
-  const [questionQ, setQuestionQ] = useState("");
+  const [lessonName, setLessonName] = useState("");
+  const [questions, setQuestions] = useState([
+    {
+      questionText: "",
+      answers: [
+        { answerText: "", isCorrect: "true" },
+        { answerText: "", isCorrect: "false" },
+        { answerText: "", isCorrect: "false" },
+      ],
+    },
+  ]);
 
-  // const [listQuiz, setListQuiz] = useState();
-  const [load, setLoad] = useState(false);
   const [loadSub, setLoadSub] = useState(false);
+  const { register, handleSubmit, setValue, getValues } = useForm();
 
   async function fetchChapterName() {
     axios
       .get(`${API_URL}/lessons/${lessonId}`)
       .then((response) => {
-        setChapterName(response.data.nama_pelajaran);
-        console.log("lesson name", response.data.name);
-        setIndexes([
-          { answerText: "", isCorrect: "true" },
-          { answerText: "", isCorrect: "false" },
-          { answerText: "", isCorrect: "false" },
-        ]);
-        setLoad(false);
+        setLessonName(response.data.nama_pelajaran);
       })
       .catch((error) => {
-        let message = error.response;
-        console.log(message);
+        console.log("Error fetching chapter name:", error.response);
       });
   }
 
   React.useEffect(() => {
-    setLoad(true);
     fetchChapterName();
-    // eslint-disable-next-line
   }, []);
 
-  const [indexes, setIndexes] = React.useState([]);
-  const { register, handleSubmit } = useForm();
-
-  // console.log("handleSubmit", handleSubmit);
-  console.log("index", indexes);
+  const addQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        questionText: "",
+        answers: [
+          { answerText: "", isCorrect: "true" },
+          { answerText: "", isCorrect: "false" },
+          { answerText: "", isCorrect: "false" },
+        ],
+      },
+    ]);
+  };
 
   const onSubmit = (data) => {
+    console.log("Form data on submit:", data); // Log the entire form data
+
     setLoadSub(true);
-    console.log("data", data);
 
-    let jsonAns = JSON.stringify(data);
+    // Map over questions to structure the data
+    const allQuestions = questions.map((q, index) => {
+      return {
+        question_text: data.questions[index]?.questionText,
+        answers: [
+          {
+            answerText: data.questions[index].answers[0]?.answerText,
+            isCorrect: "true",
+          },
+          {
+            answerText: data.questions[index].answers[1]?.answerText,
+            isCorrect: "false",
+          },
+          {
+            answerText: data.questions[index].answers[2]?.answerText,
+            isCorrect: "false",
+          },
+        ],
+      };
+    });
 
-    if (indexes.length < 2) {
-      setLoadSub(false);
+    console.log("All Questions to be submitted:", allQuestions); // Log the structured data
 
-      // alert.error(<div className="notif">Isi Opsi Jawaban Minimal 2</div>);
-      return false;
-    } else if (
-      data.list[0]?.answerText === "" ||
-      data.list[1]?.answerText === "" ||
-      data.list[2]?.answerText === ""
-    ) {
-      setLoadSub(false);
+    // Convert the `allQuestions` array to a string
+    const stringifiedQuestions = JSON.stringify(allQuestions);
+    console.log("Stringified Questions:", stringifiedQuestions); // Log the stringified version
 
-      // alert.error(<div className="notif">Isi Bagian Yang Kosong!</div>);
-      return false;
-    }
+    // Prepare the payload, with the `questions` field as a string
+    const requestData = {
+      user_id: user.id,
+      lesson_id: lessonId,
+      questions: stringifiedQuestions, // Now a string, not an object
+    };
+
+    console.log("Payload being sent to API:", requestData); // Log the payload
 
     axios({
       method: "post",
       url: `${API_URL}/exam`,
-      data: {
-        user_id: user.id,
-        lesson_id: lessonId,
-        question_text: questionQ,
-        answer_options: jsonAns,
-      },
+      data: requestData, // Send the payload with questions as a string
     })
       .then(function (response) {
+        console.log("Success response:", response); // Log successful response
         setLoadSub(false);
-        alert.success(<div className="notif">Berhasil membuat Soal Ujian!</div>);
-        //handle success
-        fetchChapterName();
-      })
-      .then(() => {
-        document.getElementById("idForm").reset();
+        alert.success(
+          <div className="notif">Berhasil membuat Soal Ujian!</div>
+        );
+        navigate(-1);
       })
       .catch(function (error) {
+        console.log("Error submitting Ujian:", error.response); // Log error response from server
         setLoadSub(false);
-
-        // alert.error(<div className="notif">Gagal membuat Soal Quiz</div>);
-        console.log(error.response);
       });
   };
 
+  const handleEditorChange = (data, index) => {
+    console.log("Editor change for question", index, ":", data); // Log the CKEditor change
+    const values = getValues();
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, questionText: data } : q))
+    );
+    setValue(`questions[${index}].questionText`, data); // Manually set form value
+  };
+
   return (
-    <>
-      {/* <DetailHeader
-        header={`Buat Quiz ${chapterName}`}
-        subHeader="Buat Quiz sekarang!"
-        img={require("../../../assets/img/my-babex.jpg")}
-      /> */}
-      {/* <ExamplesNavbar /> */}
-      <div className="section ">
-        <Container>
-          <br />
-          <div className="mt-2">
-            <BackButton />
-            <h2>
-              Buat Soal untuk Ujian <b> {chapterName}</b>
-            </h2>
-            <hr />
-            <form
-              className="form"
-              onSubmit={handleSubmit(onSubmit)}
-              id="idForm"
-            >
-              <Row>
-                <Col lg="7" sm="10">
-                  <FormGroup className="font-weight-bold">
-                    <Label>Soal Ujian</Label>
+    <div className="section">
+      <Container>
+        <BackButton />
+        <h2>
+          Buat Soal untuk Ujian <b>{lessonName}</b>
+        </h2>
+        <hr />
+        <form className="form" onSubmit={handleSubmit(onSubmit)} id="idForm">
+          <Row>
+            <Col lg="7" sm="10">
+              {questions.map((question, questionIndex) => (
+                <div key={questionIndex}>
+                  <FormGroup>
+                    <Label>Soal Ujian {questionIndex + 1}</Label>
                     <CKEditor
-                      required
-                      className="font-weight-bold"
                       editor={ClassicEditor}
-                      data={questionQ}
+                      data={question.questionText}
                       onChange={(event, editor) => {
                         const data = editor.getData();
-                        setQuestionQ(data);
+                        handleEditorChange(data, questionIndex);
                       }}
                     />
                   </FormGroup>
-                  {indexes.map((data, index) => {
-                    const fieldName = `list[${index}]`;
+
+                  {question.answers.map((answer, answerIndex) => {
+                    const fieldName = `questions[${questionIndex}].answers[${answerIndex}]`;
                     return (
-                      <fieldset name={fieldName} key={index}>
+                      <fieldset name={fieldName} key={answerIndex}>
                         <FormGroup>
-                          {" "}
-                          <label
+                          <Label
                             className={
-                              fieldName === "list[0]"
-                                ? "text-success"
-                                : "text-danger"
+                              answerIndex === 0 ? "text-success" : "text-danger"
                             }
                           >
-                            {fieldName === "list[0]"
+                            {answerIndex === 0
                               ? "Isi Jawaban Benar"
-                              : "Isi Jawaban Salah"}
-                          </label>
+                              : `Isi Jawaban Salah ${answerIndex}`}
+                          </Label>
                           <input
                             type="text"
-                            defaultValue={data.answerText}
+                            defaultValue={answer.answerText}
                             className="form-control"
                             {...register(`${fieldName}.answerText`, {
                               required: true,
@@ -175,7 +185,7 @@ export default function CreateExam({ user }) {
                         </FormGroup>
                         <input
                           hidden
-                          defaultValue={data.isCorrect}
+                          defaultValue={answer.isCorrect}
                           {...register(`${fieldName}.isCorrect`, {
                             required: true,
                           })}
@@ -183,25 +193,24 @@ export default function CreateExam({ user }) {
                       </fieldset>
                     );
                   })}
+                </div>
+              ))}
 
-                  {loadSub === true ? (
-                    <div>
-                      <Spinner className="float-right"></Spinner>
-                    </div>
-                  ) : (
-                    <button
-                      type="submit"
-                      className="btn btn-info btn-round float-right"
-                    >
-                      Submit
-                    </button>
-                  )}
-                </Col>
-              </Row>
-            </form>
-          </div>
-        </Container>
-      </div>
-    </>
+              <Button color="primary" type="button" onClick={addQuestion}>
+                + Tambah Soal
+              </Button>
+
+              {loadSub ? (
+                <Spinner className="float-right" />
+              ) : (
+                <Button type="submit" color="info" className="float-right">
+                  Submit
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </form>
+      </Container>
+    </div>
   );
 }

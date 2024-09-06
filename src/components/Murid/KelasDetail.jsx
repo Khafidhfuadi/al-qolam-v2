@@ -291,15 +291,7 @@ function KelasDetail({ user, handleLogout }) {
                           <div className="accordion-body">
                             {item?.subject?.map((list, index) => {
                               return (
-                                <div
-                                  style={
-                                    chapterIndex !== 0 && user.role === "murid"
-                                      ? lockedSubject
-                                      : {}
-                                  }
-                                  className="card mt-2"
-                                  key={index + 1}
-                                >
+                                <div className="card mt-2" key={index + 1}>
                                   <div className="card-body d-flex justify-content-between align-items-center">
                                     {/* nama materi */}
                                     <div>
@@ -445,48 +437,68 @@ function KelasDetail({ user, handleLogout }) {
                                 </div>
                               </div>
                             ) : (
-                              <>
-                                {item.quiz !== null &&
-                                progressFilter(item.id).length ===
-                                  item.subject.length ? (
-                                  <div className="card mt-2" id={item.id}>
-                                    <div className="card-body d-flex justify-content-between align-items-center">
-                                      <div>
-                                        <img
-                                          src={quizIcon}
-                                          width={24}
-                                          className="rounded me-2"
-                                        />
-                                        <span className="fw-bold">
-                                          Kuis {item.name}
-                                        </span>
-                                      </div>
+                              // <>
+                              //   {item.quiz !== null &&
+                              //   progressFilter(item.id).length ===
+                              //     item.subject.length ? (
+                              //     <div className="card mt-2" id={item.id}>
+                              //       <div className="card-body d-flex justify-content-between align-items-center">
+                              //         <div>
+                              //           <img
+                              //             src={quizIcon}
+                              //             width={24}
+                              //             className="rounded me-2"
+                              //           />
+                              //           <span className="fw-bold">
+                              //             Kuis {item.name}
+                              //           </span>
+                              //         </div>
 
-                                      <Button color="info" disabled={false}>
-                                        Mulai Kuis
-                                      </Button>
-                                    </div>
+                              //         <Button color="info" disabled={false}>
+                              //           Mulai Kuis
+                              //         </Button>
+                              //       </div>
+                              //     </div>
+                              //   ) : (
+                              //     <div className="card mt-2" id={item.id}>
+                              //       <div className="card-body d-flex justify-content-between align-items-center">
+                              //         <div>
+                              //           <img
+                              //             src={quizIcon}
+                              //             width={24}
+                              //             className="rounded me-2"
+                              //           />
+                              //           <span className="fw-bold">
+                              //             Kuis {item.name}
+                              //           </span>
+                              //         </div>
+                              //         <Button color="danger" disabled={true}>
+                              //           Terkunci
+                              //         </Button>
+                              //       </div>
+                              //     </div>
+                              //   )}
+                              // </>
+                              <div className="card mt-2" id={item.id}>
+                                <div className="card-body d-flex justify-content-between align-items-center">
+                                  <div>
+                                    <img
+                                      src={quizIcon}
+                                      width={24}
+                                      className="rounded me-2"
+                                    />
+                                    <span className="fw-bold">
+                                      Kuis {item.name}
+                                    </span>
                                   </div>
-                                ) : (
-                                  <div className="card mt-2" id={item.id}>
-                                    <div className="card-body d-flex justify-content-between align-items-center">
-                                      <div>
-                                        <img
-                                          src={quizIcon}
-                                          width={24}
-                                          className="rounded me-2"
-                                        />
-                                        <span className="fw-bold">
-                                          Kuis {item.name}
-                                        </span>
-                                      </div>
-                                      <Button color="danger" disabled={true}>
-                                        Terkunci
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </>
+
+                                  <Link to={`/quiz/${item?.id}`}>
+                                    <Button color="info" disabled={false}>
+                                      Mulai Kuis
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
                             )}
                             {/* {load === false ? <></> : <></>} */}
                             {user.id === detailLesson?.user_id ? (
@@ -542,7 +554,7 @@ function KelasDetail({ user, handleLogout }) {
                     </div>
                   </div>
                 ) : (
-                  <div style={lockedSubject} className="card mt-2 mb-5">
+                  <div className="card mt-2 mb-5">
                     <div className="card-body d-flex justify-content-between align-items-center">
                       {/* nama materi */}
                       <div>
@@ -556,9 +568,9 @@ function KelasDetail({ user, handleLogout }) {
                           Ujian {detailLesson?.nama_pelajaran}
                         </span>
                       </div>
-                      <Button color="danger" disabled={true}>
-                        Ujian Terkunci
-                      </Button>
+                      <Link to={`/exam/${detailLesson?.id}`}>
+                        <Button color="info">Mulai Ujian</Button>
+                      </Link>
                     </div>
                   </div>
                 )}

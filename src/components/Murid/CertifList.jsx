@@ -21,32 +21,42 @@ function CertifList({ user }) {
   return (
     <>
       <div className="section section-tabs text-capitalize">
-        <Container>
+        <div className="container">
           <h2 className="mt-4">Sertifikat</h2>
+          <div className="row">{/* 3 card in row */}</div>
           <div className="row">
             {load === false ? (
               certifList?.data?.length > 0 ? (
                 certifList?.data?.map((certif, index) => {
                   return (
-                    <div className="card">
-                      <div className="row  align-items-center">
-                        {/* <div className="col-auto col-md-auto">
-                          <img width="30%" alt="..." src={sertif}></img>
-                        </div> */}
-                        <img width="30%" alt="..." src={sertif}></img>
-
-                        <div className="col-auto col-md-auto">
-                          <h5>{certif.Lesson.nama_pelajaran}</h5>
-                          <div className="date">
-                            Lulus : {certifList.created}
+                    <div className="col-md-auto">
+                      <Card>
+                        <div className="card-body row">
+                          <div className="col-md-auto">
+                            <img
+                              alt="..."
+                              className="img-center img-fluid"
+                              src={sertif}
+                              width={100}
+                            />
                           </div>
-                          <Link to={`export/${certif.lesson_id}`}>
-                            <Button size="sm" color="info">
-                              Export
-                            </Button>
-                          </Link>
+                          <div className="col">
+                            <h6 className="fw-bold">
+                              Sertifikat {certif.Lesson.nama_pelajaran}
+                            </h6>
+                            <span>Lulus : {certifList.created}</span>
+                            <br />
+
+                            <Link
+                              to={`/export/${user.id}/${certif.Lesson?.id}`}
+                            >
+                              <Button size="sm" color="info">
+                                Lihat Sertifikat
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
-                      </div>
+                      </Card>
                     </div>
                   );
                 })
@@ -75,7 +85,7 @@ function CertifList({ user }) {
               <>loading...</>
             )}
           </div>
-        </Container>
+        </div>
       </div>
     </>
   );

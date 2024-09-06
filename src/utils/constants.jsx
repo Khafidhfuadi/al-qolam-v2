@@ -192,6 +192,57 @@ export function fetchDataSingleCertif(
     });
 }
 
+export function isQuizDone(setQuizDone, setLoad, chapter_id, userId) {
+  axios
+    .get(`${API_URL}/quizscore?chapter_id=${chapter_id}&user_id=${userId}`, {})
+    .then((response) => {
+      setQuizDone(response.data.data);
+      console.log("quiz done", response.data.data);
+      setLoad(false);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+// updateQuizScore
+export function updateQuizScore(id, score) {
+  axios({
+    method: "put",
+    url: `${API_URL}/quizscore/${id}`,
+    data: {
+      score: score,
+    },
+  })
+    .then(function (response) {
+      //handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error.response);
+    });
+}
+
+// createQuizScore
+export function createQuizScore(userId, chapterId, score) {
+  axios({
+    method: "post",
+    url: `${API_URL}/quizscore`,
+    data: {
+      user_id: userId,
+      chapter_id: chapterId,
+      score: score,
+    },
+  })
+    .then(function (response) {
+      //handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error.response);
+    });
+}
+
 export function createUserCertif(lessonId, userId, nilaiUjian) {
   axios({
     method: "post",

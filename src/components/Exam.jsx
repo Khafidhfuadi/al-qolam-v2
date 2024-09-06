@@ -75,14 +75,6 @@ function Exam({ user }) {
   React.useEffect(() => {
     setLoad(true);
     fetchDataExam(setQuestions, secondsToHms, setRandomArr, id, setLoad);
-    // fetchDataSingleCertif(
-    //   setCertif,
-    //   setCreatedAt,
-    //   setPredikat,
-    //   setLoad,
-    //   id,
-    //   userId
-    // );
 
     console.log("questions", questions);
 
